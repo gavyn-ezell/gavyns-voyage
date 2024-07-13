@@ -1,7 +1,7 @@
 const fragmentShader = 
 `uniform sampler2D waterTexture;
 uniform float iTime;
-in vec2 vUv;
+in vec2 texCoord;
 
 const float PI = 3.14159265359;
 
@@ -10,7 +10,7 @@ float displacementFunction(float x) {
 }
 
 void main() {
-    vec2 uv = vUv;
+    vec2 uv = texCoord;
     
     // Apply displacement
     float displaceAmount = 0.012; // Adjust this to control the intensity of the effect

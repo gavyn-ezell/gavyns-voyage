@@ -19,25 +19,24 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 camera.position.set( 0, 5, 10);
 
 const axesHelper = new THREE.AxesHelper( 40 );
-scene.add( axesHelper );
+// scene.add( axesHelper );
 
 const controls = new OrbitControls( camera, renderer.domElement );
 controls.listenToKeyEvents(window)
 
-//LIGHTING
-//sunset gradient ambient light: 0xF4A675
-//blue sky:0x87CEFA
-// const ambientLight = new THREE.AmbientLight( 0xffffff, 1);
-// scene.add( ambientLight)
-// const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-// scene.add( directionalLight );
-// scene.background = new THREE.Color(0xFEE0B5)
+//LIGHTING, FOG
+const ambientLight = new THREE.AmbientLight( 0xffffff, 1);
+scene.add( ambientLight)
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+scene.add( directionalLight );
+scene.background = new THREE.Color(0x4B8BE5)
+scene.fog = new THREE.Fog( 0xcccccc, 70, 150);
 
 //loading our island scene as gltf
 // const loader = new GLTFLoader();
 // loader.load( './materials/island.gltf', function ( gltf ) {
 
-//     console.log("island loaded in scene");
+// 	gltf.scene.rotation.set(0, Math.PI, 0);
 // 	scene.add( gltf.scene );
 
 // }, undefined, function ( error ) {
@@ -46,12 +45,13 @@ controls.listenToKeyEvents(window)
 
 // } );
 
+
 const textureLoader = new THREE.TextureLoader();
 const waterTexture = textureLoader.load('./materials/water.png');
 waterTexture.wrapS = THREE.RepeatWrapping;
 waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
-const geometry = new THREE.CircleGeometry( 100, 32 ); 
+const geometry = new THREE.CircleGeometry( 100, 16 ); 
 const material = new THREE.ShaderMaterial(
 	{
 		uniforms: {
@@ -68,17 +68,33 @@ scene.add( ocean );
 
 
 
-
+//GENERATING CLOUDS
 const smallCloudTextures = [textureLoader.load('./materials/smallcloud0.png'), 
 	textureLoader.load('./materials/smallcloud1.png'), 
 	textureLoader.load('./materials/smallcloud2.png')];
-const cloudMaterials = [new THREE.SpriteMaterial( { map: smallCloudTextures[0]} ), 
-	 new THREE.SpriteMaterial( { map: smallCloudTextures[1]} ),
-	 new THREE.SpriteMaterial( { map: smallCloudTextures[2]} )];
+const mediumCloudTexture = textureLoader.load('./materials/mediumcloud0.png');
+const longCloudTextures = [textureLoader.load('./materials/longcloud0.png'),
+	textureLoader.load('./materials/longcloud1.png')];
 
-for ( let i = 0; i < 10; i ++) 
+for ( let i = 0; i < 10; i++) 
 {
-	scene.add( generateCloudSprite(cloudMaterials[i%3]) )
+	let longMat = new THREE.SpriteMaterial( { map: longCloudTextures[i%2]} ) 
+	longMat.opacity = Math.random() * (0.3) + 0.5;
+	scene.add( generateCloudSprite(longMat, 0) )
+}
+
+for ( let i = 0; i < 10; i++) 
+{
+	let mediumMat= new THREE.SpriteMaterial( { map: mediumCloudTexture } ) 
+	mediumMat.opacity = Math.random() * (0.3) + 0.5;
+	scene.add( generateCloudSprite(mediumMat, 1) )
+}
+
+for ( let i = 0; i < 10; i++) 
+{
+	let smallMat = new THREE.SpriteMaterial( { map: smallCloudTextures[i%3]} ) 
+	smallMat.opacity = Math.random() * (0.3) + 0.5;
+	scene.add( generateCloudSprite(smallMat, 2) )
 }
 
 
