@@ -1,35 +1,29 @@
 import * as THREE from 'three';
-const R = 100;
-const generateSmallCloudSprite = (cloudMaterial, type) => {
-    
-    let cloud = new THREE.Sprite(cloudMaterial);
+const generateCloudPosition = (matrix, type) => {
+
+    let r;
+    let theta;
+    let phi;
     if (type==0) 
     {
-        const theta = Math.random() * -0.8 * Math.PI;
-        const phi = Math.acos(Math.random() * 0.1 + 0.1);
-        cloud.scale.set(80,20,1);
-        cloud.position.x = R * Math.sin(phi) * Math.cos(theta);
-        cloud.position.y = R * Math.cos(phi);
-        cloud.position.z = R * Math.sin(phi) * Math.sin(theta);
+        r = 90
+        theta = Math.random() * -0.8 * Math.PI;
+        phi = Math.acos(Math.random() * 0.1 + 0.1);
     }
     else if (type == 1)
     {
-        const theta = Math.random() * -0.8 * Math.PI;
-        const phi = Math.acos(Math.random() * 0.15 + 0.2);
-        cloud.scale.set(60,15,1);
-        cloud.position.x = R * Math.sin(phi) * Math.cos(theta);
-        cloud.position.y = R * Math.cos(phi);
-        cloud.position.z = R * Math.sin(phi) * Math.sin(theta);
+        r = 100
+        theta = Math.random() * -2 * Math.PI;
+        phi = Math.acos(Math.random() * 0.15 + 0.1);
     }
     else { 
-        const theta = Math.random() * -1 * Math.PI;
-        const phi = Math.acos(Math.random() * 0.4 + 0.2);
-        cloud.scale.set(50,50,1);
-        cloud.position.x = R * Math.sin(phi) * Math.cos(theta);
-        cloud.position.y = R * Math.cos(phi);
-        cloud.position.z = R * Math.sin(phi) * Math.sin(theta);
+        r = 90
+        theta = Math.random() * -2 * Math.PI;
+        phi = Math.acos(Math.random() * 0.6 + 0.13);
     }
-    return cloud;
+    
+    matrix.makeTranslation( r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
 }
 
-export default generateSmallCloudSprite;
+
+export { generateCloudPosition };

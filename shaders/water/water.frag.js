@@ -1,4 +1,4 @@
-const fragmentShader = 
+const frag = 
 `uniform sampler2D waterTexture;
 uniform float iTime;
 in vec2 texCoord;
@@ -33,4 +33,4 @@ void main() {
     gl_FragColor = vec4(finalColor, 1.0);
 }`;
 
-export default fragmentShader;
+export default frag;

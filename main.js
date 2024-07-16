@@ -1,10 +1,19 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import generateCloudSprite from './helpers.js';
-import vertexShader from './shaders/vertex.glsl.js';
-import fragmentShader from './shaders/fragment.glsl.js';
+import {generateCloudPosition} from './helpers.js';
 
+//ALL SHADER IMPORTS
+import waterVert from './shaders/water/water.vert.js';
+import waterFrag from './shaders/water/water.frag.js';
+
+import smallcloudVert from './shaders/smallcloud/smallcloud.vert.js';
+import smallcloudFrag from './shaders/smallcloud/smallcloud.frag.js';
+import mediumcloudVert from './shaders/mediumcloud/mediumcloud.vert.js';
+import mediumcloudFrag from './shaders/mediumcloud/mediumcloud.frag.js';
+
+
+const cloudCount = 40;
 //RENDERER SETUP
 const renderer = new THREE.WebGLRenderer( { antialias: true });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -19,7 +28,7 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 camera.position.set( 0, 5, 10);
 
 const axesHelper = new THREE.AxesHelper( 40 );
-// scene.add( axesHelper );
+scene.add( axesHelper );
 
 const controls = new OrbitControls( camera, renderer.domElement );
 controls.listenToKeyEvents(window)
@@ -33,75 +42,103 @@ scene.background = new THREE.Color(0x4B8BE5)
 scene.fog = new THREE.Fog( 0xcccccc, 70, 150);
 
 //loading our island scene as gltf
-// const loader = new GLTFLoader();
-// loader.load( './materials/island.gltf', function ( gltf ) {
+const loader = new GLTFLoader();
+loader.load( './materials/island.gltf', function ( gltf ) {
 
-// 	gltf.scene.rotation.set(0, Math.PI, 0);
-// 	scene.add( gltf.scene );
+	gltf.scene.rotation.set(0, Math.PI, 0);
+	scene.add( gltf.scene );
 
-// }, undefined, function ( error ) {
+}, undefined, function ( error ) {
 
-// 	console.error( error );
+	console.error( error );
 
-// } );
+} );
 
-
+//ADDING
 const textureLoader = new THREE.TextureLoader();
 const waterTexture = textureLoader.load('./materials/water.png');
 waterTexture.wrapS = THREE.RepeatWrapping;
 waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
-const geometry = new THREE.CircleGeometry( 100, 16 ); 
-const material = new THREE.ShaderMaterial(
+const waterGeometry = new THREE.CircleGeometry( 100, 16 ); 
+const waterMaterial = new THREE.ShaderMaterial(
 	{
 		uniforms: {
 			waterTexture: { value: waterTexture },
 			iTime: { value: 0}
 		},
-		vertexShader: vertexShader,
-		fragmentShader: fragmentShader
+		vertexShader: waterVert,
+		fragmentShader: waterFrag
 	}
 )
-const ocean = new THREE.Mesh( geometry, material );
-ocean.rotateX(-Math.PI / 2)
-scene.add( ocean );
+const water = new THREE.Mesh( waterGeometry, waterMaterial );
+water.rotateX(-Math.PI / 2)
+scene.add( water);
 
 
 
-//GENERATING CLOUDS
-const smallCloudTextures = [textureLoader.load('./materials/smallcloud0.png'), 
-	textureLoader.load('./materials/smallcloud1.png'), 
-	textureLoader.load('./materials/smallcloud2.png')];
-const mediumCloudTexture = textureLoader.load('./materials/mediumcloud0.png');
-const longCloudTextures = [textureLoader.load('./materials/longcloud0.png'),
-	textureLoader.load('./materials/longcloud1.png')];
 
-for ( let i = 0; i < 10; i++) 
-{
-	let longMat = new THREE.SpriteMaterial( { map: longCloudTextures[i%2]} ) 
-	longMat.opacity = Math.random() * (0.3) + 0.5;
-	scene.add( generateCloudSprite(longMat, 0) )
+const matrix = new THREE.Matrix4();
+const billboardMatrix = new THREE.Matrix4();
+
+const smallcloudTexture = textureLoader.load('./materials/smallcloud0.png');
+const smallcloudGeometry = new THREE.PlaneGeometry( 40, 40 ); 
+const smallcloudMaterial = new THREE.ShaderMaterial(
+	{
+		transparent: true,
+		depthWrite: false,
+		side: THREE.DoubleSide,
+		uniforms: {
+			smallcloudTexture: { value: smallcloudTexture },
+			cameraRotation: {value: billboardMatrix}, 
+			iTime: { value: 0}
+		},
+		vertexShader: smallcloudVert,
+		fragmentShader: smallcloudFrag
+	}
+)
+const smallcloudMesh = new THREE.InstancedMesh( smallcloudGeometry, smallcloudMaterial, cloudCount );
+
+const mediumcloudTexture = textureLoader.load('./materials/mediumcloud01.png');
+const mediumcloudGeometry = new THREE.PlaneGeometry( 80, 20 ); 
+const mediumcloudMaterial = new THREE.ShaderMaterial(
+	{
+		transparent: true,
+		depthWrite: false,
+		side: THREE.DoubleSide,
+		uniforms: {
+			mediumcloudTexture: { value: mediumcloudTexture },
+			cameraRotation: {value: billboardMatrix}, 
+			iTime: { value: 0}
+		},
+		vertexShader: mediumcloudVert,
+		fragmentShader: mediumcloudFrag
+	}
+)
+const mediumcloudMesh = new THREE.InstancedMesh( mediumcloudGeometry, mediumcloudMaterial, cloudCount );
+
+
+
+for ( let i = 0; i < cloudCount; i ++ ) {
+
+	generateCloudPosition( matrix, 2 );
+	smallcloudMesh.setMatrixAt( i, matrix );
+
+	generateCloudPosition( matrix, 1 );
+	mediumcloudMesh.setMatrixAt( i, matrix );
+
 }
-
-for ( let i = 0; i < 10; i++) 
-{
-	let mediumMat= new THREE.SpriteMaterial( { map: mediumCloudTexture } ) 
-	mediumMat.opacity = Math.random() * (0.3) + 0.5;
-	scene.add( generateCloudSprite(mediumMat, 1) )
-}
-
-for ( let i = 0; i < 10; i++) 
-{
-	let smallMat = new THREE.SpriteMaterial( { map: smallCloudTextures[i%3]} ) 
-	smallMat.opacity = Math.random() * (0.3) + 0.5;
-	scene.add( generateCloudSprite(smallMat, 2) )
-}
+scene.add( smallcloudMesh );
+scene.add( mediumcloudMesh );
 
 
 
 function animate() {
-	renderer.render( scene, camera );
     controls.update();
-	material.uniforms.iTime.value += 0.01;
+	waterMaterial.uniforms.iTime.value += 0.01;
+	smallcloudMaterial.uniforms.iTime.value += 0.01;
+	mediumcloudMaterial.uniforms.iTime.value += 0.01;
+
+	renderer.render( scene, camera );
 }
 renderer.setAnimationLoop( animate );
