@@ -13,8 +13,8 @@ void main() {
     vec2 uv = texCoord;
     
     // Apply displacement
-    float displaceAmount = 0.012; // Adjust this to control the intensity of the effect
-    float xOffset = iTime * 0.1; // Control the speed of the effect
+    float displaceAmount = 0.013; // Adjust this to control the intensity of the effect
+    float xOffset = iTime * 0.2; // Control the speed of the effect
     
     // Apply displacement to both x and y for a 2D effect
     uv.x += displaceAmount * displacementFunction(uv.y * 10.0 + xOffset);

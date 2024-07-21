@@ -42,7 +42,7 @@ void main() {
 
 	
 
-	gl_Position = projectionMatrix * viewMatrix * circularRotation(0.04 * iTime) * instanceMatrix * rotation*  vec4( position, 1.0 );
+	gl_Position = projectionMatrix * viewMatrix * circularRotation(0.02 * iTime) * instanceMatrix * rotation*  vec4( position, 1.0 );
 
 
 
