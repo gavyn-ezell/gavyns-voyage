@@ -1,18 +1,19 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import {generateCloudPosition} from './helpers.js';
+import { Timer } from 'three/addons/misc/Timer.js';
+import {generateCloudPosition, generateWindLinePosition} from './helpers.js';
 
 //ALL SHADER IMPORTS
 import waterVert from './shaders/water/water.vert.js';
 import waterFrag from './shaders/water/water.frag.js';
-
 import smallcloudVert from './shaders/smallcloud/smallcloud.vert.js';
 import smallcloudFrag from './shaders/smallcloud/smallcloud.frag.js';
-import mediumcloudVert from './shaders/mediumcloud/mediumcloud.vert.js';
-import mediumcloudFrag from './shaders/mediumcloud/mediumcloud.frag.js';
+import windVert from './shaders/wind/wind.vert.js';
+import windFrag from './shaders/wind/wind.frag.js';
 
-//RENDERER SETUP
+
+//BASIC SETUP: RENDERER, CAMERA, SCENE, CONTROLS, LIGHITNG
 const renderer = new THREE.WebGLRenderer( { antialias: true });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -20,47 +21,46 @@ renderer.setPixelRatio(window.devicePixelRatio)
 document.body.appendChild( renderer.domElement );
 renderer.setAnimationLoop( animate );
 
-//CAMERA, SCENE, CONTROLS
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-camera.position.set( 0, 5, 10);
+scene.background = new THREE.Color(0x4B8BE5)
 
+// const ambientLight = new THREE.AmbientLight( 0xffffff, 1);
+// scene.add( ambientLight)
+// const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+// scene.add( directionalLight );
+const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+camera.position.set( 0, 1.5, 4);
 const axesHelper = new THREE.AxesHelper( 40 );
 scene.add( axesHelper );
-
 const controls = new OrbitControls( camera, renderer.domElement );
 controls.listenToKeyEvents(window)
 
-//LIGHTING, FOG
-const ambientLight = new THREE.AmbientLight( 0xffffff, 1);
-scene.add( ambientLight)
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-scene.add( directionalLight );
-scene.background = new THREE.Color(0x4B8BE5)
-scene.fog = new THREE.Fog( 0xcccccc, 70, 150);
 
-//loading our island scene as gltf
-const loader = new GLTFLoader();
-loader.load( './materials/island.gltf', function ( gltf ) {
+//OBJECT SETUP
 
-	gltf.scene.rotation.set(0, Math.PI, 0);
-	scene.add( gltf.scene );
+//ISLAND
+// const loader = new GLTFLoader();
+// loader.load( './materials/island.gltf', function ( gltf ) {
 
-}, undefined, function ( error ) {
+// 	gltf.scene.rotation.set(0, Math.PI, 0);
+// 	scene.add( gltf.scene );
 
-	console.error( error );
+// }, undefined, function ( error ) {
 
-} );
+// 	console.error( error );
 
-//ADDING
+// } );
+
+//WATER
 const textureLoader = new THREE.TextureLoader();
 const waterTexture = textureLoader.load('./materials/water.png');
 waterTexture.wrapS = THREE.RepeatWrapping;
 waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
-const waterGeometry = new THREE.PlaneGeometry( 125, 125, 50, 50 ); 
+const waterGeometry = new THREE.PlaneGeometry(125, 62.5, 20, 20 ); 
 const waterMaterial = new THREE.ShaderMaterial(
 	{
+
 		uniforms: {
 			waterTexture: { value: waterTexture },
 			iTime: { value: 0}
@@ -71,11 +71,10 @@ const waterMaterial = new THREE.ShaderMaterial(
 )
 const water = new THREE.Mesh( waterGeometry, waterMaterial );
 water.rotateX(-Math.PI / 2)
+water.translateY(20)
 scene.add( water);
 
-
-
-
+//CLOUDS
 const matrix = new THREE.Matrix4();
 const billboardMatrix = new THREE.Matrix4();
 const cloudCount = 50;
@@ -102,68 +101,85 @@ for ( let i = 0; i < cloudCount; i ++ ) {
 	generateCloudPosition( matrix, 2 );
 	smallcloudMesh.setMatrixAt( i, matrix );
 
-
 }
 scene.add( smallcloudMesh );
 
 
-//WIND LINE STUFF
-var canvas = document.createElement( 'CANVAS' );
+//WIND
+const canvas = document.createElement( 'CANVAS' );
     canvas.width = 64;
     canvas.height = 8;
 
-var context = canvas.getContext( '2d' );
+const context = canvas.getContext( '2d' );
 
-var gradient = context.createLinearGradient( 0, 0, 64, 0 );
+const gradient = context.createLinearGradient( 0, 0, 64, 0 );
 		gradient.addColorStop( 0.0, 'rgba(255,255,255,0)' );
 		gradient.addColorStop( 0.5, 'rgba(255,255,255,128)' );
 		gradient.addColorStop( 1.0, 'rgba(255,255,255,0)' );
 		context.fillStyle = gradient;
     context.fillRect( 0, 0, 64, 8 );
 
-var texture = new THREE.CanvasTexture( canvas );
-
-const windGeometry = new THREE.PlaneGeometry( 5, 0.05, 20, 1 );
-const windMaterial = new THREE.MeshBasicMaterial( {map: texture, transparent: true, depthWrite: false, color: 0xffffff, side: THREE.DoubleSide} );
-const windLine = new THREE.Mesh( windGeometry, windMaterial );
-scene.add( windLine );
-windLine.position.y += 2;
-windLine.position.z -= 2;
-
-let vertices = windGeometry.attributes.position.array;
-let ogVals = [];
-for (let i = 0; i < windGeometry.attributes.position.count; i ++)
+const windTexture = new THREE.CanvasTexture( canvas );
+const windGeometry = new THREE.PlaneGeometry( 15, 0.025, 20, 1 );
+const windMaterial = new THREE.ShaderMaterial(
 	{
-
-		ogVals.push(vertices[ i * 3 ])
-		ogVals.push(vertices[ i * 3 + 1])
-		ogVals.push(vertices[ i * 3 + 2])
+		transparent: true,
+		depthWrite: false,
+		side: THREE.DoubleSide,
+		uniforms: {
+			windTexture: { value: windTexture },
+			iTime: { value: 0}
+		},
+		vertexShader: windVert,
+		fragmentShader: windFrag
 	}
-
-
-function waveFunction(inx, iny, time) {
-	let x = inx + time*2.5;
-	let y = iny + time*2.5;
-	let offset = 0.5*(Math.sin(0.2*x + 0.3*y) + 1.5 * Math.sin(0.1*x - 0.2*y));
-
-	return offset;
-}
-
-
-let globalTime = 0.0;
-function animate() {
-    controls.update();
-	waterMaterial.uniforms.iTime.value += 0.01;
-	smallcloudMaterial.uniforms.iTime.value += 0.01;
-	globalTime += 0.01;
-
-	for (let i = 0; i < windGeometry.attributes.position.count; i ++)
-	{
-		vertices[ i * 3 + 1 ] = ogVals[i * 3 + 1] + waveFunction(ogVals[i * 3 ], ogVals[i * 3 + 1 ], globalTime)
-	}
-	windGeometry.attributes.position.needsUpdate = true;
-
 	
+)
+
+var iTime = 0.0;
+const timer = new Timer()
+let last = 0.0
+const windLines = [];
+for (let i = 0; i < 4; i ++)
+{
+	let windLine = new THREE.Mesh( windGeometry, windMaterial );
+	scene.add( windLine );
+	windLines.push(windLine)
+	generateWindLinePosition(windLine)
+}
+function animate() {
+	
+	iTime += 0.01;
+	waterMaterial.uniforms.iTime.value = iTime;
+	smallcloudMaterial.uniforms.iTime.value = iTime;
+	windMaterial.uniforms.iTime.value = iTime;
+	
+	timer.update()
+	if (last + 10.0 <= timer.getElapsed())
+	{	
+		//clear old
+		while (windLines.length > 0)
+		{
+			scene.remove(windLines.pop())
+		}
+		//add new
+		for (let i = 0; i < 4; i ++)
+		{
+			let windLine = new THREE.Mesh( windGeometry, windMaterial );
+			scene.add( windLine );
+			windLines.push(windLine)
+			generateWindLinePosition(windLine)
+		}
+		last = timer.getElapsed()
+	}
+	else {
+		for (let i = 0; i < 4; i ++)
+		{
+			windLines[i].position.x += 0.5 - (i*0.1)
+		}
+	
+	}
+
 	controls.update();
 	renderer.render( scene, camera );
 }
