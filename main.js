@@ -113,14 +113,15 @@ const canvas = document.createElement( 'CANVAS' );
 const context = canvas.getContext( '2d' );
 
 const gradient = context.createLinearGradient( 0, 0, 64, 0 );
-		gradient.addColorStop( 0.0, 'rgba(255,255,255,0)' );
-		gradient.addColorStop( 0.5, 'rgba(255,255,255,128)' );
-		gradient.addColorStop( 1.0, 'rgba(255,255,255,0)' );
-		context.fillStyle = gradient;
-    context.fillRect( 0, 0, 64, 8 );
+gradient.addColorStop( 0.0, 'rgba(255,255,255,0)' );
+gradient.addColorStop( 0.5, 'rgba(255,255,255,32)' );
+gradient.addColorStop( 1.0, 'rgba(255,255,255,0)' );
+context.fillStyle = gradient;
+context.fillRect( 0, 0, 64, 8 );
 
 const windTexture = new THREE.CanvasTexture( canvas );
 const windGeometry = new THREE.PlaneGeometry( 15, 0.025, 20, 1 );
+// const windGeometry = new THREE.PlaneGeometry( 9,9, 20, 1 );
 const windMaterial = new THREE.ShaderMaterial(
 	{
 		transparent: true,
@@ -133,14 +134,15 @@ const windMaterial = new THREE.ShaderMaterial(
 		vertexShader: windVert,
 		fragmentShader: windFrag
 	}
-	
 )
+const windCount = 2;
+const windLines = [];
 
 var iTime = 0.0;
 const timer = new Timer()
 let last = 0.0
-const windLines = [];
-for (let i = 0; i < 4; i ++)
+
+for (let i = 0; i < windCount; i ++)
 {
 	let windLine = new THREE.Mesh( windGeometry, windMaterial );
 	scene.add( windLine );
@@ -155,7 +157,7 @@ function animate() {
 	windMaterial.uniforms.iTime.value = iTime;
 	
 	timer.update()
-	if (last + 10.0 <= timer.getElapsed())
+	if (last + 3 <= timer.getElapsed())
 	{	
 		//clear old
 		while (windLines.length > 0)
@@ -163,7 +165,7 @@ function animate() {
 			scene.remove(windLines.pop())
 		}
 		//add new
-		for (let i = 0; i < 4; i ++)
+		for (let i = 0; i < windCount; i ++)
 		{
 			let windLine = new THREE.Mesh( windGeometry, windMaterial );
 			scene.add( windLine );
@@ -173,9 +175,9 @@ function animate() {
 		last = timer.getElapsed()
 	}
 	else {
-		for (let i = 0; i < 4; i ++)
+		for (let i = 0; i < windCount; i ++)
 		{
-			windLines[i].position.x += 0.5 - (i*0.1)
+			windLines[i].position.x += 0.4 - (i*0.15)
 		}
 	
 	}
