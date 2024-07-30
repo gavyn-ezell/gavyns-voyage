@@ -3,8 +3,8 @@ const vert =
 uniform float iTime;
 
 mat4 waveFunction(float inx, float iny) {
-	float x = inx + iTime*2.5;
-	float y = iny + iTime*2.5;
+	float x = inx + iTime;
+	float y = iny + iTime;
 	float offset = 0.2*(sin(0.2*x + 0.3*y) + 1.5 * sin(0.1*x - 0.2*y));
 	mat4 result = mat4(1.0, 0.0, 0.0, 0.0,  
                   0.0, 1.0, 0.0, 0.0,  

@@ -11,6 +11,8 @@ import smallcloudVert from './shaders/smallcloud/smallcloud.vert.js';
 import smallcloudFrag from './shaders/smallcloud/smallcloud.frag.js';
 import windVert from './shaders/wind/wind.vert.js';
 import windFrag from './shaders/wind/wind.frag.js';
+import sunVert from './shaders/sun/sun.vert.js';
+import sunFrag from './shaders/sun/sun.frag.js';
 
 
 //BASIC SETUP: RENDERER, CAMERA, SCENE, CONTROLS, LIGHITNG
@@ -31,7 +33,7 @@ scene.background = new THREE.Color(0x4B8BE5)
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.set( 0, 1.5, 4);
 const axesHelper = new THREE.AxesHelper( 40 );
-scene.add( axesHelper );
+// scene.add( axesHelper );
 const controls = new OrbitControls( camera, renderer.domElement );
 controls.listenToKeyEvents(window)
 
@@ -74,10 +76,32 @@ water.rotateX(-Math.PI / 2)
 water.translateY(20)
 scene.add( water);
 
+//SUN
+const sunTexture = textureLoader.load('./materials/sun.png');
+const sunGeometry = new THREE.PlaneGeometry(30, 30, 1, 1)
+const sunMaterial = new THREE.ShaderMaterial(
+	{
+		transparent: true,
+		depthWrite: false,
+		side: THREE.DoubleSide,
+		uniforms: {
+			sunTexture: { value: sunTexture },
+		},
+		vertexShader: sunVert,
+		fragmentShader: sunFrag
+	}
+)
+const sun = new THREE.Mesh( sunGeometry, sunMaterial );
+scene.add(sun)
+sun.translateY(75);
+sun.translateZ(-30);
+sun.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
+
+
 //CLOUDS
 const matrix = new THREE.Matrix4();
 const billboardMatrix = new THREE.Matrix4();
-const cloudCount = 50;
+const cloudCount = 40;
 const smallcloudTexture = textureLoader.load('./materials/smallcloud0.png');
 const smallcloudGeometry = new THREE.PlaneGeometry( 35, 35 ); 
 const smallcloudMaterial = new THREE.ShaderMaterial(
@@ -120,8 +144,7 @@ context.fillStyle = gradient;
 context.fillRect( 0, 0, 64, 8 );
 
 const windTexture = new THREE.CanvasTexture( canvas );
-const windGeometry = new THREE.PlaneGeometry( 15, 0.025, 20, 1 );
-// const windGeometry = new THREE.PlaneGeometry( 9,9, 20, 1 );
+const windGeometry = new THREE.PlaneGeometry( 20, 0.025, 20, 1 );
 const windMaterial = new THREE.ShaderMaterial(
 	{
 		transparent: true,
@@ -138,9 +161,9 @@ const windMaterial = new THREE.ShaderMaterial(
 const windCount = 2;
 const windLines = [];
 
-var iTime = 0.0;
 const timer = new Timer()
 let last = 0.0
+var time = 0.0;
 
 for (let i = 0; i < windCount; i ++)
 {
@@ -151,13 +174,13 @@ for (let i = 0; i < windCount; i ++)
 }
 function animate() {
 	
-	iTime += 0.01;
-	waterMaterial.uniforms.iTime.value = iTime;
-	smallcloudMaterial.uniforms.iTime.value = iTime;
-	windMaterial.uniforms.iTime.value = iTime;
+	time = timer.getElapsed()
+	waterMaterial.uniforms.iTime.value = time;
+	smallcloudMaterial.uniforms.iTime.value = time;
+	windMaterial.uniforms.iTime.value = time;
 	
 	timer.update()
-	if (last + 3 <= timer.getElapsed())
+	if (last + 4 <= time)
 	{	
 		//clear old
 		while (windLines.length > 0)
@@ -172,12 +195,12 @@ function animate() {
 			windLines.push(windLine)
 			generateWindLinePosition(windLine)
 		}
-		last = timer.getElapsed()
+		last = time
 	}
 	else {
 		for (let i = 0; i < windCount; i ++)
 		{
-			windLines[i].position.x += 0.4 - (i*0.15)
+			windLines[i].position.x += 0.8 - (i*0.15)
 		}
 	
 	}
