@@ -15,7 +15,7 @@ mat4 waveFunction(float inx, float iny) {
 
 
 void main() {
-	texCoord = 2.0 * vec2(uv.x, uv.y);
+	texCoord = 4.0 * vec2(uv.x, uv.y);
 	vec3 worldPos = vec3(modelMatrix * vec4(position, 1.0));
 	mat4 waveTranslation = waveFunction(worldPos.x, worldPos.y);
 	gl_Position = projectionMatrix * viewMatrix * waveTranslation * modelMatrix * vec4( position, 1.0 );

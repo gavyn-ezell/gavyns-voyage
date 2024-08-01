@@ -2,7 +2,7 @@ const generateCloudPosition = (matrix, type) => {
 
     let r = 90
     let theta = Math.random() * -2 * Math.PI;
-    let phi = Math.acos(Math.random() * 0.7 + 0.12);
+    let phi = Math.acos(Math.random() * 0.7 + 0.11);
     
     matrix.makeTranslation( r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
 }

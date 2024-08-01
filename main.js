@@ -13,6 +13,8 @@ import windVert from './shaders/wind/wind.vert.js';
 import windFrag from './shaders/wind/wind.frag.js';
 import sunVert from './shaders/sun/sun.vert.js';
 import sunFrag from './shaders/sun/sun.frag.js';
+import landmassVert from './shaders/landmass/landmass.vert.js';
+import landmassFrag from './shaders/landmass/landmass.frag.js';
 
 
 //BASIC SETUP: RENDERER, CAMERA, SCENE, CONTROLS, LIGHITNG
@@ -32,8 +34,8 @@ scene.background = new THREE.Color(0x4B8BE5)
 // scene.add( directionalLight );
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.set( 0, 1.5, 4);
-const axesHelper = new THREE.AxesHelper( 40 );
-// scene.add( axesHelper );
+// const axesHelper = new THREE.AxesHelper( 40 );
+// // scene.add( axesHelper );
 const controls = new OrbitControls( camera, renderer.domElement );
 controls.listenToKeyEvents(window)
 
@@ -59,7 +61,7 @@ const waterTexture = textureLoader.load('./materials/water.png');
 waterTexture.wrapS = THREE.RepeatWrapping;
 waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
-const waterGeometry = new THREE.PlaneGeometry(125, 62.5, 20, 20 ); 
+const waterGeometry = new THREE.PlaneGeometry(400, 400, 20, 20 ); 
 const waterMaterial = new THREE.ShaderMaterial(
 	{
 
@@ -75,6 +77,36 @@ const water = new THREE.Mesh( waterGeometry, waterMaterial );
 water.rotateX(-Math.PI / 2)
 water.translateY(20)
 scene.add( water);
+
+//LAND MASSES
+const landmassTexture = textureLoader.load('./materials/landmass0.png');
+waterTexture.wrapS = THREE.RepeatWrapping;
+waterTexture.wrapT = THREE.RepeatWrapping;
+waterTexture.magFilter = THREE.LinearFilter;
+const landmassGeometry = new THREE.PlaneGeometry(700, 20, 20, 1)
+// for(let i = 0; i < landmassGeometry.attributes.position.count; i++) {
+// 	let x = landmassGeometry.attributes.position.array[ i * 3 ]
+// 	landmassGeometry.attributes.position.array[ i * 3 + 2 ] = -Math.sqrt(8100.0 - x*x);
+//   }
+
+const landmassMaterial = new THREE.ShaderMaterial(
+	{
+		transparent: true,
+		depthWrite: false,
+		wireframe: false,
+		uniforms: {
+			landmassTexture: { value: landmassTexture },
+		},
+		side: THREE.DoubleSide,
+		vertexShader: landmassVert,
+		fragmentShader: landmassFrag
+	}
+)
+const landmass = new THREE.Mesh( landmassGeometry, landmassMaterial );
+
+landmass.translateY(5);
+landmass.translateZ(-200)
+scene.add(landmass)
 
 //SUN
 const sunTexture = textureLoader.load('./materials/sun.png');
@@ -97,13 +129,12 @@ sun.translateY(75);
 sun.translateZ(-30);
 sun.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
 
-
 //CLOUDS
 const matrix = new THREE.Matrix4();
 const billboardMatrix = new THREE.Matrix4();
 const cloudCount = 40;
 const smallcloudTexture = textureLoader.load('./materials/smallcloud0.png');
-const smallcloudGeometry = new THREE.PlaneGeometry( 35, 35 ); 
+const smallcloudGeometry = new THREE.PlaneGeometry( 30, 25 ); 
 const smallcloudMaterial = new THREE.ShaderMaterial(
 	{
 		transparent: true,
@@ -144,7 +175,7 @@ context.fillStyle = gradient;
 context.fillRect( 0, 0, 64, 8 );
 
 const windTexture = new THREE.CanvasTexture( canvas );
-const windGeometry = new THREE.PlaneGeometry( 20, 0.025, 20, 1 );
+const windGeometry = new THREE.PlaneGeometry( 30, 0.025, 20, 1 );
 const windMaterial = new THREE.ShaderMaterial(
 	{
 		transparent: true,
@@ -178,6 +209,8 @@ function animate() {
 	waterMaterial.uniforms.iTime.value = time;
 	smallcloudMaterial.uniforms.iTime.value = time;
 	windMaterial.uniforms.iTime.value = time;
+
+	// camera.translateX(0.1);
 	
 	timer.update()
 	if (last + 4 <= time)
@@ -200,7 +233,7 @@ function animate() {
 	else {
 		for (let i = 0; i < windCount; i ++)
 		{
-			windLines[i].position.x += 0.8 - (i*0.15)
+			windLines[i].position.x += 0.75 - (i*0.15)
 		}
 	
 	}
