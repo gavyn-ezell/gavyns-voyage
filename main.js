@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Timer } from 'three/addons/misc/Timer.js';
 import {generateCloudPosition, generateWindLinePosition} from './helpers.js';
@@ -28,43 +29,74 @@ renderer.setAnimationLoop( animate );
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x4B8BE5)
 
-// const ambientLight = new THREE.AmbientLight( 0xffffff, 1);
-// scene.add( ambientLight)
-// const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-// scene.add( directionalLight );
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+directionalLight.position.set(45,40, 60)
+scene.add( directionalLight );
+
+const ambientlight = new THREE.AmbientLight( 0xffffff ); // soft white light
+scene.add( ambientlight );
+
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-camera.position.set( 0, 1.5, 4);
-// const axesHelper = new THREE.AxesHelper( 40 );
-// // scene.add( axesHelper );
+camera.position.set( 0.0, 2.5, 4);
+
 const controls = new OrbitControls( camera, renderer.domElement );
 controls.listenToKeyEvents(window)
 
-
-//OBJECT SETUP
-
-//ISLAND
-// const loader = new GLTFLoader();
-// loader.load( './materials/island.gltf', function ( gltf ) {
-
-// 	gltf.scene.rotation.set(0, Math.PI, 0);
-// 	scene.add( gltf.scene );
-
-// }, undefined, function ( error ) {
-
-// 	console.error( error );
-
-// } );
-
-//WATER
+//LOADERS
 const textureLoader = new THREE.TextureLoader();
+const objloader = new OBJLoader();
+const gltfLoader = new GLTFLoader();
+
+
+//IMPORTED MODELS
+//BOAT
+const fourTone = new THREE.TextureLoader().load('./materials/fourTone.jpg')
+fourTone.minFilter = THREE.NearestFilter
+fourTone.magFilter = THREE.NearestFilter
+const boatTexture = new THREE.TextureLoader().load('./materials/boatTexture.png')
+let toyboat = new THREE.Object3D();
+objloader.load(
+	'./models/toyboat.obj',
+	// called when resource is loaded
+	function ( object ) {
+
+		const boatMaterial = new THREE.MeshToonMaterial( {
+			map: boatTexture,
+			gradientMap: fourTone
+	
+		} );
+		object.traverse((node) => {
+			node.material = boatMaterial
+		});
+		toyboat.add(object);
+		scene.add( toyboat );
+
+	},
+	// called when loading is in progresses
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( error );
+
+	}
+);
+
+
+//NON IMPORTED MODELS
+//WATER
 const waterTexture = textureLoader.load('./materials/water.png');
 waterTexture.wrapS = THREE.RepeatWrapping;
 waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
-const waterGeometry = new THREE.PlaneGeometry(400, 400, 20, 20 ); 
+waterTexture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+const waterGeometry = new THREE.PlaneGeometry(400, 250, 20, 20 ); 
 const waterMaterial = new THREE.ShaderMaterial(
 	{
-
 		uniforms: {
 			waterTexture: { value: waterTexture },
 			iTime: { value: 0}
@@ -75,7 +107,7 @@ const waterMaterial = new THREE.ShaderMaterial(
 )
 const water = new THREE.Mesh( waterGeometry, waterMaterial );
 water.rotateX(-Math.PI / 2)
-water.translateY(20)
+water.translateY(80)
 scene.add( water);
 
 //LAND MASSES
@@ -84,11 +116,6 @@ waterTexture.wrapS = THREE.RepeatWrapping;
 waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
 const landmassGeometry = new THREE.PlaneGeometry(700, 20, 20, 1)
-// for(let i = 0; i < landmassGeometry.attributes.position.count; i++) {
-// 	let x = landmassGeometry.attributes.position.array[ i * 3 ]
-// 	landmassGeometry.attributes.position.array[ i * 3 + 2 ] = -Math.sqrt(8100.0 - x*x);
-//   }
-
 const landmassMaterial = new THREE.ShaderMaterial(
 	{
 		transparent: true,
@@ -203,16 +230,15 @@ for (let i = 0; i < windCount; i ++)
 	windLines.push(windLine)
 	generateWindLinePosition(windLine)
 }
+
 function animate() {
 	
 	time = timer.getElapsed()
 	waterMaterial.uniforms.iTime.value = time;
 	smallcloudMaterial.uniforms.iTime.value = time;
 	windMaterial.uniforms.iTime.value = time;
-
-	// camera.translateX(0.1);
-	
 	timer.update()
+	toyboat.setRotationFromAxisAngle(new THREE.Vector3(0,0,1),  (Math.PI / 16) * (0.2*Math.sin(time)))
 	if (last + 4 <= time)
 	{	
 		//clear old
@@ -233,7 +259,7 @@ function animate() {
 	else {
 		for (let i = 0; i < windCount; i ++)
 		{
-			windLines[i].position.x += 0.75 - (i*0.15)
+			windLines[i].position.x += 0.5 - (i*0.2)
 		}
 	
 	}

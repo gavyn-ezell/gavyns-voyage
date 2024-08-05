@@ -11,7 +11,8 @@ const generateWindLinePosition = (windLine) => {
 
     let r = Math.random() * 3;
     let theta = Math.random() * 2 * Math.PI;
-    windLine.position.set(-(Math.random() * 10 + 20), 2.5 + r * Math.sin(theta), -3.58 + r * Math.cos(theta));
+    
+    windLine.position.set(-(Math.random() * 10 + 20), 2 + r * Math.sin(theta), -3.58 + r * Math.cos(theta));
 }
 
 export { generateCloudPosition, generateWindLinePosition};
