@@ -19,8 +19,7 @@ import landmassFrag from './shaders/landmass/landmass.frag.js';
 
 
 //BASIC SETUP: RENDERER, CAMERA, SCENE, CONTROLS, LIGHITNG
-const renderer = new THREE.WebGLRenderer( { antialias: true });
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+const renderer = new THREE.WebGLRenderer( { antialias: true, precision: "lowp"});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio)
 document.body.appendChild( renderer.domElement );
@@ -28,16 +27,16 @@ renderer.setAnimationLoop( animate );
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x4B8BE5)
+scene.fog = new THREE.Fog(0x016fbe, 1, 60)
 
 const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-directionalLight.position.set(45,40, 60)
+directionalLight.position.set(70,45, 60)
 scene.add( directionalLight );
-
-const ambientlight = new THREE.AmbientLight( 0xffffff ); // soft white light
+const ambientlight = new THREE.AmbientLight( 0xffffff );
 scene.add( ambientlight );
 
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-camera.position.set( 0.0, 2.5, 4);
+const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1100 );
+camera.position.set( 0.0, 2, 5);
 
 const controls = new OrbitControls( camera, renderer.domElement );
 controls.listenToKeyEvents(window)
@@ -53,7 +52,7 @@ const gltfLoader = new GLTFLoader();
 const fourTone = new THREE.TextureLoader().load('./materials/fourTone.jpg')
 fourTone.minFilter = THREE.NearestFilter
 fourTone.magFilter = THREE.NearestFilter
-const boatTexture = new THREE.TextureLoader().load('./materials/boatTexture.png')
+const boatTexture = new THREE.TextureLoader().load('./materials/boatTexture0.png')
 let toyboat = new THREE.Object3D();
 objloader.load(
 	'./models/toyboat.obj',
@@ -62,8 +61,8 @@ objloader.load(
 
 		const boatMaterial = new THREE.MeshToonMaterial( {
 			map: boatTexture,
-			gradientMap: fourTone
-	
+			gradientMap: fourTone,
+			side: THREE.FrontSide
 		} );
 		object.traverse((node) => {
 			node.material = boatMaterial
@@ -75,7 +74,7 @@ objloader.load(
 	// called when loading is in progresses
 	function ( xhr ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		// console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 
 	},
 	// called when loading has errors
@@ -93,47 +92,60 @@ const waterTexture = textureLoader.load('./materials/water.png');
 waterTexture.wrapS = THREE.RepeatWrapping;
 waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
-waterTexture.anisotropy = renderer.capabilities.getMaxAnisotropy()
-const waterGeometry = new THREE.PlaneGeometry(400, 250, 20, 20 ); 
+const waterGeometry = new THREE.PlaneGeometry(125, 125, 20, 20 ); 
 const waterMaterial = new THREE.ShaderMaterial(
 	{
-		uniforms: {
-			waterTexture: { value: waterTexture },
-			iTime: { value: 0}
-		},
+		fog: true,
+		uniforms: THREE.UniformsUtils.merge( [
+			THREE.UniformsLib[ 'fog' ],
+  			{
+				waterTexture: { value: waterTexture },
+				iTime: { value: 0}
+			},
+		]		 ),
 		vertexShader: waterVert,
 		fragmentShader: waterFrag
 	}
 )
 const water = new THREE.Mesh( waterGeometry, waterMaterial );
 water.rotateX(-Math.PI / 2)
-water.translateY(80)
-scene.add( water);
+scene.add(water)
+
+const distantWaterGeometry = new THREE.PlaneGeometry(1000, 1000, 1, 1 ); 
+const distantWaterMaterial = new THREE.MeshBasicMaterial({color: 0x016fbe})
+const distantWater = new THREE.Mesh( distantWaterGeometry, distantWaterMaterial );
+distantWater.translateY(-2)
+distantWater.rotateX(-Math.PI / 2)
+scene.add(distantWater)
+
+// const geometry = new THREE.PlaneGeometry(2, 2, 1, 1 ); 
+// const material = new THREE.MeshBasicMaterial({color: 0x016fbe, side: THREE.DoubleSide})
+// const plane = new THREE.Mesh( geometry, material );
+// plane.translateY(3)
+// scene.add(plane)
+
+
 
 //LAND MASSES
-const landmassTexture = textureLoader.load('./materials/landmass0.png');
-waterTexture.wrapS = THREE.RepeatWrapping;
-waterTexture.wrapT = THREE.RepeatWrapping;
-waterTexture.magFilter = THREE.LinearFilter;
-const landmassGeometry = new THREE.PlaneGeometry(700, 20, 20, 1)
-const landmassMaterial = new THREE.ShaderMaterial(
-	{
-		transparent: true,
-		depthWrite: false,
-		wireframe: false,
-		uniforms: {
-			landmassTexture: { value: landmassTexture },
-		},
-		side: THREE.DoubleSide,
-		vertexShader: landmassVert,
-		fragmentShader: landmassFrag
-	}
-)
-const landmass = new THREE.Mesh( landmassGeometry, landmassMaterial );
+// const landmassTexture = textureLoader.load('./materials/landmass0.png');
+// landmassTexture.magFilter = THREE.LinearFilter;
+// const landmassGeometry = new THREE.PlaneGeometry(700, 20, 20, 1)
+// const landmassMaterial = new THREE.ShaderMaterial(
+// 	{
+// 		transparent: true,
+// 		depthWrite: false,
+// 		uniforms: {
+// 			landmassTexture: { value: landmassTexture },
+// 		},
+// 		side: THREE.DoubleSide,
+// 		vertexShader: landmassVert,
+// 		fragmentShader: landmassFrag
+// 	}
+// )
+// const landmass = new THREE.Mesh( landmassGeometry, landmassMaterial );
 
-landmass.translateY(5);
-landmass.translateZ(-200)
-scene.add(landmass)
+// landmass.translateZ(-1000)
+// scene.add(landmass)
 
 //SUN
 const sunTexture = textureLoader.load('./materials/sun.png');
@@ -166,7 +178,6 @@ const smallcloudMaterial = new THREE.ShaderMaterial(
 	{
 		transparent: true,
 		depthWrite: false,
-		side: THREE.DoubleSide,
 		uniforms: {
 			smallcloudTexture: { value: smallcloudTexture },
 			cameraRotation: {value: billboardMatrix}, 
@@ -230,7 +241,7 @@ for (let i = 0; i < windCount; i ++)
 	windLines.push(windLine)
 	generateWindLinePosition(windLine)
 }
-
+renderer.compile(scene, camera);
 function animate() {
 	
 	time = timer.getElapsed()
@@ -259,7 +270,7 @@ function animate() {
 	else {
 		for (let i = 0; i < windCount; i ++)
 		{
-			windLines[i].position.x += 0.5 - (i*0.2)
+			windLines[i].position.x += 0.7 - (i*0.2)
 		}
 	
 	}
@@ -267,4 +278,3 @@ function animate() {
 	controls.update();
 	renderer.render( scene, camera );
 }
-renderer.setAnimationLoop( animate );

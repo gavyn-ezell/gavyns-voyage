@@ -2,6 +2,7 @@ const frag =
 `uniform sampler2D waterTexture;
 uniform float iTime;
 in vec2 texCoord;
+#include <fog_pars_fragment>
 
 const float PI = 3.14159265359;
 
@@ -31,6 +32,7 @@ void main() {
     vec3 finalColor = mix(windwakerBlue, darkBlue, darkblueMask.r);
     finalColor = mix(finalColor, white, whiteMask.r);
     gl_FragColor = vec4(finalColor, 1.0);
+    #include <fog_fragment>
 }`;
 
 export default frag;
