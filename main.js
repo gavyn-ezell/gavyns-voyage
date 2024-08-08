@@ -8,12 +8,14 @@ import {generateCloudPosition, generateWindLinePosition} from './helpers.js';
 //ALL SHADER IMPORTS
 import waterVert from './shaders/water/water.vert.js';
 import waterFrag from './shaders/water/water.frag.js';
+import distantWaterVert from './shaders/distantwater/distantwater.vert.js';
+import distantWaterFrag from './shaders/distantwater/distantwater.frag.js';
+import sunVert from './shaders/sun/sun.vert.js';
+import sunFrag from './shaders/sun/sun.frag.js';
 import smallcloudVert from './shaders/smallcloud/smallcloud.vert.js';
 import smallcloudFrag from './shaders/smallcloud/smallcloud.frag.js';
 import windVert from './shaders/wind/wind.vert.js';
 import windFrag from './shaders/wind/wind.frag.js';
-import sunVert from './shaders/sun/sun.vert.js';
-import sunFrag from './shaders/sun/sun.frag.js';
 import landmassVert from './shaders/landmass/landmass.vert.js';
 import landmassFrag from './shaders/landmass/landmass.frag.js';
 
@@ -27,7 +29,7 @@ renderer.setAnimationLoop( animate );
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x4B8BE5)
-scene.fog = new THREE.Fog(0x016fbe, 1, 60)
+scene.fog = new THREE.Fog(0x016fbe, 1, 50)
 
 const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
 directionalLight.position.set(70,45, 60)
@@ -49,10 +51,10 @@ const gltfLoader = new GLTFLoader();
 
 //IMPORTED MODELS
 //BOAT
-const fourTone = new THREE.TextureLoader().load('./materials/fourTone.jpg')
+const fourTone = new THREE.TextureLoader().load('./textures/fourTone.jpg')
 fourTone.minFilter = THREE.NearestFilter
 fourTone.magFilter = THREE.NearestFilter
-const boatTexture = new THREE.TextureLoader().load('./materials/boatTexture0.png')
+const boatTexture = new THREE.TextureLoader().load('./textures/boatTexture0.png')
 let toyboat = new THREE.Object3D();
 objloader.load(
 	'./models/toyboat.obj',
@@ -88,7 +90,7 @@ objloader.load(
 
 //NON IMPORTED MODELS
 //WATER
-const waterTexture = textureLoader.load('./materials/water.png');
+const waterTexture = textureLoader.load('./textures/water.png');
 waterTexture.wrapS = THREE.RepeatWrapping;
 waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
@@ -111,23 +113,28 @@ const water = new THREE.Mesh( waterGeometry, waterMaterial );
 water.rotateX(-Math.PI / 2)
 scene.add(water)
 
+const distantWaterTexture = textureLoader.load('./textures/gradient0.png');
+distantWaterTexture.magFilter = THREE.LinearFilter;
 const distantWaterGeometry = new THREE.PlaneGeometry(1000, 1000, 1, 1 ); 
-const distantWaterMaterial = new THREE.MeshBasicMaterial({color: 0x016fbe})
+const distantWaterMaterial = new THREE.ShaderMaterial(
+	{
+		uniforms: 
+  		{
+			distantWaterTexture: { value: distantWaterTexture },
+		},
+		vertexShader: distantWaterVert,
+		fragmentShader: distantWaterFrag
+	}
+)
 const distantWater = new THREE.Mesh( distantWaterGeometry, distantWaterMaterial );
 distantWater.translateY(-2)
 distantWater.rotateX(-Math.PI / 2)
 scene.add(distantWater)
 
-// const geometry = new THREE.PlaneGeometry(2, 2, 1, 1 ); 
-// const material = new THREE.MeshBasicMaterial({color: 0x016fbe, side: THREE.DoubleSide})
-// const plane = new THREE.Mesh( geometry, material );
-// plane.translateY(3)
-// scene.add(plane)
-
 
 
 //LAND MASSES
-// const landmassTexture = textureLoader.load('./materials/landmass0.png');
+// const landmassTexture = textureLoader.load('./textures/landmass0.png');
 // landmassTexture.magFilter = THREE.LinearFilter;
 // const landmassGeometry = new THREE.PlaneGeometry(700, 20, 20, 1)
 // const landmassMaterial = new THREE.ShaderMaterial(
@@ -148,7 +155,7 @@ scene.add(distantWater)
 // scene.add(landmass)
 
 //SUN
-const sunTexture = textureLoader.load('./materials/sun.png');
+const sunTexture = textureLoader.load('./textures/sun.png');
 const sunGeometry = new THREE.PlaneGeometry(30, 30, 1, 1)
 const sunMaterial = new THREE.ShaderMaterial(
 	{
@@ -172,7 +179,7 @@ sun.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
 const matrix = new THREE.Matrix4();
 const billboardMatrix = new THREE.Matrix4();
 const cloudCount = 40;
-const smallcloudTexture = textureLoader.load('./materials/smallcloud0.png');
+const smallcloudTexture = textureLoader.load('./textures/smallcloud0.png');
 const smallcloudGeometry = new THREE.PlaneGeometry( 30, 25 ); 
 const smallcloudMaterial = new THREE.ShaderMaterial(
 	{
