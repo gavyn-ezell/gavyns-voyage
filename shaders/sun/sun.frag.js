@@ -1,4 +1,4 @@
-const frag = 
+export default 
 `uniform sampler2D sunTexture;
 in vec2 texCoord;
 
@@ -11,5 +11,3 @@ void main() {
     
 	gl_FragColor = vec4(finalColor, mask.a);
 }`;
-
-export default frag;

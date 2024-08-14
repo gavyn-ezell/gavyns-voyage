@@ -1,4 +1,4 @@
-const vert = 
+export default 
 `out vec2 texCoord;
 uniform float iTime;
 
@@ -41,10 +41,8 @@ void main() {
 	mat4 rotation = lookAt(vec3(0.0,0.0,0.0), world_pos);
 
 
-	gl_Position = projectionMatrix * viewMatrix * circularRotation(0.008 * iTime) * instanceMatrix * rotation*  vec4( position, 1.0 );
+	gl_Position = projectionMatrix * viewMatrix * circularRotation(0.008 * iTime) * instanceMatrix * rotation *  vec4( position, 1.0 );
 
 
 
 }`;
-
-export default vert;

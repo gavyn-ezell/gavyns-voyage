@@ -1,4 +1,4 @@
-const frag = 
+export default 
 `uniform sampler2D windTexture;
 in vec2 texCoord;
 
@@ -7,5 +7,3 @@ void main() {
     color.a *= 0.6;
     gl_FragColor = color;
 }`;
-
-export default frag;

@@ -1,4 +1,4 @@
-const frag = 
+export default 
 `
 uniform sampler2D landmassTexture;
 in vec2 texCoord;
@@ -10,5 +10,3 @@ void main() {
 	
 	gl_FragColor = vec4(base, mask.a);
 }`;
-
-export default frag;

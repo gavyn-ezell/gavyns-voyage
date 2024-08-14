@@ -1,4 +1,4 @@
-const frag = 
+export default
 `uniform sampler2D waterTexture;
 uniform float iTime;
 in vec2 texCoord;
@@ -34,5 +34,3 @@ void main() {
     gl_FragColor = vec4(finalColor, 1.0);
     #include <fog_fragment>
 }`;
-
-export default frag;

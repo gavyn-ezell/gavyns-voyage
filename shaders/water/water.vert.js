@@ -1,4 +1,4 @@
-const vert = 
+export default
 `out vec2 texCoord;
 uniform float iTime;
 #include <fog_pars_vertex>
@@ -6,7 +6,7 @@ uniform float iTime;
 mat4 waves(float inx, float iny) {
 	float x = inx + iTime;
 	float y = iny + iTime;
-	float offset = 0.2*(sin(0.2*x + 0.4*y) + 2.0 * sin(0.1*x - 0.2*y));
+	float offset = 0.17*(sin(0.2*x + 0.4*y) + 2.0 * sin(0.1*x - 0.2*y));
 	mat4 result = mat4(1.0, 0.0, 0.0, 0.0,  
                   0.0, 1.0, 0.0, 0.0,  
                   0.0, 0.0, 1.0, 0.0,  
@@ -17,17 +17,13 @@ mat4 waves(float inx, float iny) {
 mat4 offset() {
 	float x = iTime;
 	float y = iTime;
-	float offset = 0.2*(sin(0.2*x + 0.4*y) + 2.0 * sin(0.1*x - 0.2*y));
+	float offset = 0.17*(sin(0.2*x + 0.4*y) + 2.0 * sin(0.1*x - 0.2*y));
 	mat4 result = mat4(1.0, 0.0, 0.0, 0.0,  
                   0.0, 1.0, 0.0, 0.0,  
                   0.0, 0.0, 1.0, 0.0,  
                   0.0, -offset, 0.0, 1.0);
 	return result;
 }
-
-
-
-
 
 void main() {
 	#include <begin_vertex>
@@ -37,5 +33,3 @@ void main() {
 	vec3 worldPos = vec3(modelMatrix * vec4(position, 1.0));
 	gl_Position = projectionMatrix * viewMatrix *offset() * waves(worldPos.x, worldPos.z)* modelMatrix * vec4( position, 1.0 );
 }`;
-
-export default vert;
