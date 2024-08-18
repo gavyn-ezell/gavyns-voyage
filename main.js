@@ -1,10 +1,9 @@
 import * as THREE from 'three';
+import * as helpers from './helpers.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
-import { Timer } from 'three/addons/misc/Timer.js';
-import {generateCloudTransformation, generateWindLinePosition} from './helpers.js';
 
 //SHADER IMPORTS
 import waterVert from './shaders/water/water.vert.js';
@@ -22,7 +21,6 @@ import windVert from './shaders/wind/wind.vert.js';
 import windFrag from './shaders/wind/wind.frag.js';
 
 
-
 //BOILERPLATE SCENE SETUP
 let camera, scene, outlinedScene, renderer, effect;
 renderer = new THREE.WebGLRenderer( { antialias: true, precision: "lowp"});
@@ -34,10 +32,9 @@ renderer.setAnimationLoop( animate );
 effect = new OutlineEffect( renderer );
 
 
-
 scene = new THREE.Scene();
 scene.background = new THREE.Color(0x4B8BE5)
-scene.fog = new THREE.Fog(0x016fbe, 1, 50)
+scene.fog = new THREE.Fog(0x016fbe, 1, 45)
 outlinedScene = new THREE.Scene();
 outlinedScene.fog = new THREE.Fog(0x016fbe, 1, 50)
 
@@ -50,7 +47,7 @@ outlinedScene.add( directionalLight.clone());
 outlinedScene.add( ambientlight.clone());
 
 camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1100 );
-camera.position.set( 0, 5, 10);
+camera.position.set( 0, 15, 0);
 
 
 const controls = new OrbitControls( camera, renderer.domElement );
@@ -71,6 +68,7 @@ fourTone.magFilter = THREE.NearestFilter
 const boatTexture = new THREE.TextureLoader().load('./textures/boatTexture0.png')
 const toyboat = new THREE.Object3D();
 const outlinedtoyboat = new THREE.Object3D();
+let toyboatX = 0;
 objloader.load(
 	'./models/toyboat.obj',
 	// called when resource is loaded
@@ -84,7 +82,7 @@ objloader.load(
 		object.traverse((node) => {
 			node.material = boatMaterial
 		});
-		
+		object.scale.set(1.2, 1.2, 1.2)
 		toyboat.add(object);
 		outlinedtoyboat.add(object.clone())
 		
@@ -364,7 +362,7 @@ gltfloader.load(
 const waterTexture = textureLoader.load('./textures/water.png');
 waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
-const waterGeometry = new THREE.PlaneGeometry(125, 125, 20, 20 ); 
+const waterGeometry = new THREE.PlaneGeometry(175, 175, 20, 20 ); 
 const waterMaterial = new THREE.ShaderMaterial(
 	{
 		fog: true,
@@ -387,7 +385,8 @@ const waterMaterial = new THREE.ShaderMaterial(
 				  resolution: {
 					value: new THREE.Vector2()
 				  },
-				iTime: { value: 0}
+				iTime: { value: 0},
+				boatPos: { value: new THREE.Vector2()},
 			},
 		]		 ),
 		vertexShader: waterVert,
@@ -418,7 +417,6 @@ window.innerHeight * dpr,
 waterMaterial.uniforms.tDepth.value = target.depthTexture;
 
 const water = new THREE.Mesh( waterGeometry, waterMaterial );
-water.translateX(20)
 water.rotateX(-Math.PI / 2)
 scene.add(water)
 
@@ -533,7 +531,7 @@ const smallcloudMesh = new THREE.InstancedMesh( smallcloudGeometry, smallcloudMa
 
 for ( let i = 0; i < cloudCount; i ++ ) {
 
-	generateCloudTransformation( matrix, 0 );
+	helpers.generateCloudTransformation( matrix, 0 );
 	smallcloudMesh.setMatrixAt( i, matrix );
 
 }
@@ -555,7 +553,7 @@ context.fillStyle = gradient;
 context.fillRect( 0, 0, 64, 8 );
 
 const windTexture = new THREE.CanvasTexture( canvas );
-const windGeometry = new THREE.PlaneGeometry( 40, 0.025, 20, 1 );
+const windGeometry = new THREE.PlaneGeometry( 30, 0.025, 20, 1 );
 const windMaterial = new THREE.ShaderMaterial(
 	{
 		transparent: true,
@@ -572,20 +570,43 @@ const windMaterial = new THREE.ShaderMaterial(
 const windCount = 1;
 const windLines = [];
 
-const timer = new Timer()
-let last = 0.0
-var time = 0.0;
 
 for (let i = 0; i < windCount; i ++)
-{
-	let windLine = new THREE.Mesh( windGeometry, windMaterial );
-	scene.add( windLine );
-	windLines.push(windLine)
-	generateWindLinePosition(windLine)
-}
+	{
+		let windLine = new THREE.Mesh( windGeometry, windMaterial );
+		scene.add( windLine );
+		windLines.push(windLine)
+		helpers.generateWindLinePosition(windLine)
+	}
 
+const material = new THREE.LineBasicMaterial({
+	color: 0xff0000
+});
+
+const points = [];
+for (let i = -10; i < 50; i+=0.1)
+{
+	points.push( new THREE.Vector3( i, 2, helpers.sigmoidPath(i) ) );
+
+}
+const geometry = new THREE.BufferGeometry().setFromPoints( points );
+const line = new THREE.Line( geometry, material );
+scene.add( line );
+
+
+const clock = new THREE.Clock(true);
+let time = 0.0;
+let deltaTime = 0.0;
+let last = 0.0
+let inForward = false;
+let inBackward = false;
+let boatX = 0.0;
+let boatSpeed = 0.75;
 function animate() {
 	renderer.clear()
+	controls.update();
+	deltaTime = clock.getDelta()
+	time = clock.getElapsedTime()
 
 	//depth render
 	water.visible = false;
@@ -606,13 +627,11 @@ function animate() {
 	//outline render
 	effect.render(outlinedScene, camera);
 	
-	time = timer.getElapsed()
 	waterMaterial.uniforms.iTime.value = time;
 	smallcloudMaterial.uniforms.iTime.value = time;
 	windMaterial.uniforms.iTime.value = time;
-	toyboat.setRotationFromAxisAngle(new THREE.Vector3(1,0,0),  (Math.PI / 10) * (0.2*Math.sin(time)))
-	outlinedtoyboat.setRotationFromAxisAngle(new THREE.Vector3(1,0,0),  (Math.PI / 10) * (0.2*Math.sin(time)))
-	timer.update()
+	toyboat.setRotationFromAxisAngle(new THREE.Vector3(1,0,0),  (Math.PI / 12) * (0.2*Math.sin(time)))
+	outlinedtoyboat.setRotationFromAxisAngle(new THREE.Vector3(1,0,0),  (Math.PI / 12) * (0.2*Math.sin(time)))
 	if (last + 6 <= time)
 	{	
 		//clear old
@@ -626,17 +645,59 @@ function animate() {
 			let windLine = new THREE.Mesh( windGeometry, windMaterial );
 			scene.add( windLine );
 			windLines.push(windLine)
-			generateWindLinePosition(windLine)
+			helpers.generateWindLinePosition(windLine)
 		}
 		last = time
 	}
 	else {
 		for (let i = 0; i < windCount; i ++)
 		{
-			windLines[i].position.x += 0.7 - (i*0.2)
+			windLines[i].position.x += 0.75
 		}
 	
 	}
 
-	controls.update();
+	if(inForward && !inBackward)
+	{
+		boatX += deltaTime*boatSpeed;
+	}
+	else if(!inForward && inBackward)
+	{
+		boatX -= deltaTime*boatSpeed;
+	}
+
+
+	toyboat.position.x = boatX
+	outlinedtoyboat.position.x = boatX;
+	toyboat.position.z = helpers.sigmoidPath(boatX)
+	outlinedtoyboat.position.z = helpers.sigmoidPath(boatX);
+	toyboat.position.y = helpers.calculateBoatHeight(boatX, toyboat.position.z, time)
+	outlinedtoyboat.position.y = helpers.calculateBoatHeight(boatX, outlinedtoyboat.position.z, time)
+
+
 }
+
+
+
+//handling movement
+window.addEventListener( "keydown", (event) => {
+	if (event.key == "d")
+	{
+		inForward = true;
+	}
+	else if (event.key == "a")
+	{
+		inBackward = true;
+	}}, false,
+  );
+
+window.addEventListener( "keyup", (event) => {
+	if (event.key == "d")
+	{
+		inForward = false;
+	}
+	else if (event.key == "a")
+	{
+		inBackward = false;
+	}}, false,
+  );

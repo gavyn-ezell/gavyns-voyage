@@ -1,5 +1,5 @@
-
-const generateCloudTransformation = (matrix, type) => {
+import * as THREE from 'three';
+export const generateCloudTransformation = (matrix, type) => {
 
     let r;
     let theta;
@@ -18,7 +18,7 @@ const generateCloudTransformation = (matrix, type) => {
     matrix.makeTranslation( r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
 }
 
-const generateWindLinePosition = (windLine) => {
+export const generateWindLinePosition = (windLine) => {
 
     let r = Math.random() * 0.25;
     let theta = Math.random() * 2 * Math.PI;
@@ -26,8 +26,17 @@ const generateWindLinePosition = (windLine) => {
     windLine.position.set(-(Math.random() * 10 + 20), 3 + r * Math.sin(theta), -7 + r * Math.cos(theta));
 }
 
-const generateGeiselMaterials = (geisel) => {
-    const geiselColors = []
+export const calculateBoatHeight = (inx, inz, iTime) => 
+{
+    let x = inx + iTime;
+	let z = inz + iTime;
+	let y = 0.1*(Math.sin(0.2*x + 0.4*z) + 2.0 * Math.sin(0.1*x - 0.2*z));
+
+    return y;
 }
 
-export { generateCloudTransformation, generateWindLinePosition};
+
+export const sigmoidPath = (x) => 
+    {
+        return 28.0*((1.0)/(1.0 + Math.E**(-0.2*(x-12))))
+    }
