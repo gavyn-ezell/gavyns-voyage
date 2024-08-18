@@ -1,5 +1,5 @@
-export default 
-`uniform sampler2D longcloudTexture;
+export default /* glsl */`
+uniform sampler2D longcloudTexture;
 in vec2 texCoord;
 
 void main() {

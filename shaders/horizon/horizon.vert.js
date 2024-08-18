@@ -1,5 +1,5 @@
-export default 
-`out vec2 texCoord;
+export default /* glsl */`
+out vec2 texCoord;
 
 void main() {
     texCoord = vec2(uv.x, uv.y);

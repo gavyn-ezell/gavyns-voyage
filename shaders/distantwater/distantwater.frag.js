@@ -1,5 +1,5 @@
-export default 
-`uniform sampler2D distantWaterTexture;
+export default /* glsl */`
+uniform sampler2D distantWaterTexture;
 in vec2 texCoord;
 
 void main() {

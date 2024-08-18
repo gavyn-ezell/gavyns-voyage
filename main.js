@@ -6,7 +6,7 @@ import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
 import { Timer } from 'three/addons/misc/Timer.js';
 import {generateCloudTransformation, generateWindLinePosition} from './helpers.js';
 
-//ALL SHADER IMPORTS
+//SHADER IMPORTS
 import waterVert from './shaders/water/water.vert.js';
 import waterFrag from './shaders/water/water.frag.js';
 import distantWaterVert from './shaders/distantwater/distantwater.vert.js';
@@ -22,48 +22,55 @@ import windVert from './shaders/wind/wind.vert.js';
 import windFrag from './shaders/wind/wind.frag.js';
 
 
-//BASIC SETUP: RENDERER, CAMERA, SCENE, CONTROLS, LIGHITNG
-const renderer = new THREE.WebGLRenderer( { antialias: true, precision: "lowp"});
+
+//BOILERPLATE SCENE SETUP
+let camera, scene, outlinedScene, renderer, effect;
+renderer = new THREE.WebGLRenderer( { antialias: true, precision: "lowp"});
 renderer.autoClear = false;
 renderer.setPixelRatio(window.devicePixelRatio)
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild( renderer.domElement );
 renderer.setAnimationLoop( animate );
+effect = new OutlineEffect( renderer );
 
-const scene = new THREE.Scene();
+
+
+scene = new THREE.Scene();
 scene.background = new THREE.Color(0x4B8BE5)
-scene.fog = new THREE.Fog(0x016fbe, 1, 40)
-const outlinedScene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x016fbe, 1, 50)
+outlinedScene = new THREE.Scene();
+outlinedScene.fog = new THREE.Fog(0x016fbe, 1, 50)
 
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-directionalLight.position.set(70,45, 60)
+
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 ); directionalLight.position.set(70,45, 60);
 const ambientlight = new THREE.AmbientLight( 0xffffff );
-
 scene.add( directionalLight );
 scene.add( ambientlight );
-outlinedScene.add( directionalLight );
-outlinedScene.add( ambientlight );
+outlinedScene.add( directionalLight.clone());
+outlinedScene.add( ambientlight.clone());
 
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1500 );
-camera.position.set( 0.0, 2, 5);
+camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1100 );
+camera.position.set( 0, 5, 10);
+
 
 const controls = new OrbitControls( camera, renderer.domElement );
 controls.listenToKeyEvents(window)
-controls.minDistance = 1;
-controls.maxDistance = 1000;
 
 
 //LOADERS
 const textureLoader = new THREE.TextureLoader();
 const objloader = new OBJLoader();
-const gltfLoader = new GLTFLoader();
+const gltfloader = new GLTFLoader();
 
+
+const foamInteractObjects = [];
 //BOAT
 const fourTone = new THREE.TextureLoader().load('./textures/fourTone.jpg')
 fourTone.minFilter = THREE.NearestFilter
 fourTone.magFilter = THREE.NearestFilter
 const boatTexture = new THREE.TextureLoader().load('./textures/boatTexture0.png')
-let toyboat = new THREE.Object3D();
+const toyboat = new THREE.Object3D();
+const outlinedtoyboat = new THREE.Object3D();
 objloader.load(
 	'./models/toyboat.obj',
 	// called when resource is loaded
@@ -77,9 +84,13 @@ objloader.load(
 		object.traverse((node) => {
 			node.material = boatMaterial
 		});
+		
 		toyboat.add(object);
-		toyboat.scale.set(0.7, 0.7, 0.7)
-		outlinedScene.add( toyboat );
+		outlinedtoyboat.add(object.clone())
+		
+		foamInteractObjects.push(toyboat)
+		scene.add(toyboat);
+		outlinedScene.add( outlinedtoyboat);
 
 	},
 	// called when loading is in progresses
@@ -96,6 +107,258 @@ objloader.load(
 	}
 );
 
+//ISLAND
+const island = new THREE.Object3D();
+const outlinedisland = new THREE.Object3D();
+gltfloader.load(
+	'./models/island.glb',
+	function ( gltf ) {
+
+		gltf.scene.scale.set(2.5, 2.5, 2.5);
+		gltf.scene.rotateY(-Math.PI)
+		gltf.scene.translateY(-0.2)
+		gltf.scene.translateX(-5)
+		gltf.scene.translateZ(6.5)
+		
+		
+		island.add(gltf.scene);
+		outlinedisland.add(gltf.scene.clone())
+		
+		foamInteractObjects.push(island)
+		scene.add(island);
+		outlinedScene.add( outlinedisland);
+
+	},
+	// called while loading is progressing
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+		console.log( error );
+
+	}
+);
+
+
+//CALIFORNIA
+gltfloader.load(
+	'./models/cali.glb',
+	function ( gltf ) {
+
+		gltf.scene.translateY(-0.5)
+		gltf.scene.rotateY(-Math.PI/2.1)
+		gltf.scene.position.set(16, -0.6, 8)
+		scene.add(gltf.scene)
+		outlinedScene.add(gltf.scene.clone())
+		foamInteractObjects.push(gltf.scene)
+
+	},
+	// called while loading is progressing
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+		console.log( error );
+
+	}
+);
+//BEAR
+const bearTexture = new THREE.TextureLoader().load('./textures/BlackBear_BaseColor.png')
+objloader.load(
+	'./models/bear.obj',
+	// called when resource is loaded
+	function ( object ) {
+
+		const bearMaterial = new THREE.MeshToonMaterial( {
+			color: 0x999999,
+			map: bearTexture,
+			gradientMap: fourTone,
+			side: THREE.FrontSide
+		} );
+		object.traverse((node) => {
+			node.material = bearMaterial
+		});
+		
+		object.translateY(-0.5)
+		object.rotateY(-Math.PI/2.1)
+		object.position.set(16, -0.6, 8)
+		outlinedScene.add(object)
+
+
+
+	},
+	// called when loading is in progresses
+	function ( xhr ) {
+
+		// console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( error );
+
+	}
+);
+
+//GEISEL
+const geiselColors = [0x8C9091, 0xA5A9AA, 0xA5A9AA, 0xA5A9AA, 0x222222, 0x94C1D8];
+gltfloader.load(
+	'./models/geisel.gltf',
+	function ( gltf ) {
+		
+		for (let i = 0; i < gltf.scene.children[0].children.length; i++)
+		{
+			gltf.scene.children[0].children[i].material = new THREE.MeshToonMaterial( {
+				color: geiselColors[i],
+				gradientMap: fourTone,
+				side: THREE.FrontSide
+			} );
+		}
+
+		gltf.scene.translateY(-0.5)
+		gltf.scene.rotateY(-Math.PI/2.1)
+		gltf.scene.position.set(16, -0.6, 8)
+
+		outlinedScene.add(gltf.scene)
+
+	},
+	// called while loading is progressing
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+		console.log( error );
+
+	}
+);
+
+//FLAG
+gltfloader.load(
+	'./models/flag.glb',
+	function ( gltf ) {
+		
+		gltf.scene.translateY(-0.5)
+		gltf.scene.rotateY(-Math.PI/2.1)
+		gltf.scene.position.set(16, -0.6, 8)
+		outlinedScene.add(gltf.scene)
+
+	},
+	// called while loading is progressing
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+		console.log( error );
+
+	}
+);
+
+//UCSD FLAG
+gltfloader.load(
+	'./models/ucsdflag.glb',
+	function ( gltf ) {
+		
+		gltf.scene.translateY(-0.5)
+		gltf.scene.rotateY(-Math.PI/2.1)
+		gltf.scene.position.set(16, -0.6, 8)
+		outlinedScene.add(gltf.scene)
+
+	},
+	// called while loading is progressing
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+		console.log( error );
+
+	}
+);
+
+
+
+//OIL RIG
+gltfloader.load(
+	'./models/oilrig.glb',
+	function ( gltf ) {
+		
+		gltf.scene.translateY(-0.2)
+		gltf.scene.scale.set(1.2, 1.8, 1.2)
+		gltf.scene.position.set(25, 0.0, 20)
+		scene.add(gltf.scene)
+		outlinedScene.add(gltf.scene.clone())
+		foamInteractObjects.push(gltf.scene)
+
+	},
+	// called while loading is progressing
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+		console.log( error );
+
+	}
+);
+
+//FINAL ISLAND
+gltfloader.load(
+	'./models/finalisland.glb',
+	function ( gltf ) {
+		
+		gltf.scene.rotateY(Math.PI/2)
+		gltf.scene.scale.set(4,4,4)
+		gltf.scene.position.set(40, -0.5, 20)
+		scene.add(gltf.scene)
+		outlinedScene.add(gltf.scene.clone())
+		foamInteractObjects.push(gltf.scene)
+
+	},
+	// called while loading is progressing
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+		console.log( error );
+
+	}
+);
+
+
 
 //WATER
 const waterTexture = textureLoader.load('./textures/water.png');
@@ -109,6 +372,21 @@ const waterMaterial = new THREE.ShaderMaterial(
 			THREE.UniformsLib[ 'fog' ],
   			{
 				waterTexture: { value: waterTexture },
+				threshold: {
+					value: 0.025
+				  },
+				  tDepth: {
+					value: null
+				  },
+				  cameraNear: {
+					value: camera.near
+				  },
+				  cameraFar: {
+					value: camera.far
+				  },
+				  resolution: {
+					value: new THREE.Vector2()
+				  },
 				iTime: { value: 0}
 			},
 		]		 ),
@@ -116,7 +394,31 @@ const waterMaterial = new THREE.ShaderMaterial(
 		fragmentShader: waterFrag
 	}
 )
+
+let dpr = renderer.getPixelRatio();
+const target = new THREE.WebGLRenderTarget( window.innerWidth * dpr, window.innerHeight * dpr );
+target.texture.minFilter = THREE.NearestFilter;
+target.texture.magFilter = THREE.NearestFilter;
+
+target.depthTexture = new THREE.DepthTexture();
+target.depthTexture.type = THREE.UnsignedShortType;
+target.depthTexture.minFilter = THREE.NearestFilter;
+target.depthTexture.maxFilter = THREE.NearestFilter;
+
+
+const depthMaterial = new THREE.MeshDepthMaterial()
+depthMaterial.depthPacking = THREE.RGBADepthPacking;
+depthMaterial.blending = THREE.NoBlending;
+
+
+waterMaterial.uniforms.resolution.value.set(
+window.innerWidth * dpr,
+window.innerHeight * dpr,
+);
+waterMaterial.uniforms.tDepth.value = target.depthTexture;
+
 const water = new THREE.Mesh( waterGeometry, waterMaterial );
+water.translateX(20)
 water.rotateX(-Math.PI / 2)
 scene.add(water)
 
@@ -253,7 +555,7 @@ context.fillStyle = gradient;
 context.fillRect( 0, 0, 64, 8 );
 
 const windTexture = new THREE.CanvasTexture( canvas );
-const windGeometry = new THREE.PlaneGeometry( 30, 0.025, 20, 1 );
+const windGeometry = new THREE.PlaneGeometry( 40, 0.025, 20, 1 );
 const windMaterial = new THREE.ShaderMaterial(
 	{
 		transparent: true,
@@ -282,10 +584,26 @@ for (let i = 0; i < windCount; i ++)
 	generateWindLinePosition(windLine)
 }
 
-const effect = new OutlineEffect( renderer );
 function animate() {
 	renderer.clear()
-	renderer.render( scene, camera );
+
+	//depth render
+	water.visible = false;
+	windLines[0].visible = false;
+	for (let x in foamInteractObjects) { foamInteractObjects[x].visible = true;}
+	scene.overrideMaterial = depthMaterial;
+	renderer.setRenderTarget(target);
+	renderer.render(scene, camera);
+
+	//main render
+	water.visible = true;
+	windLines[0].visible = true;
+	for (let x in foamInteractObjects) { foamInteractObjects[x].visible = false;}
+	scene.overrideMaterial = null;
+	renderer.setRenderTarget(null);
+	renderer.render(scene, camera)
+
+	//outline render
 	effect.render(outlinedScene, camera);
 	
 	time = timer.getElapsed()
@@ -293,8 +611,9 @@ function animate() {
 	smallcloudMaterial.uniforms.iTime.value = time;
 	windMaterial.uniforms.iTime.value = time;
 	toyboat.setRotationFromAxisAngle(new THREE.Vector3(1,0,0),  (Math.PI / 10) * (0.2*Math.sin(time)))
+	outlinedtoyboat.setRotationFromAxisAngle(new THREE.Vector3(1,0,0),  (Math.PI / 10) * (0.2*Math.sin(time)))
 	timer.update()
-	if (last + 4 <= time)
+	if (last + 6 <= time)
 	{	
 		//clear old
 		while (windLines.length > 0)

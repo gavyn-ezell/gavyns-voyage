@@ -1,5 +1,5 @@
-export default 
-`out vec2 texCoord;
+export default /* glsl */`
+out vec2 texCoord;
 uniform float iTime;
 
 mat4 lookAt(vec3 eye, vec3 target) {

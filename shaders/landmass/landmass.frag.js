@@ -1,5 +1,4 @@
-export default 
-`
+export default /* glsl */`
 uniform sampler2D landmassTexture;
 in vec2 texCoord;
 

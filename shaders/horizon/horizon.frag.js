@@ -1,5 +1,5 @@
-export default 
-`uniform sampler2D horizonTexture;
+export default /* glsl */`
+uniform sampler2D horizonTexture;
 in vec2 texCoord;
 
 void main() {

@@ -1,5 +1,5 @@
-export default 
-`uniform sampler2D smallcloudTexture;
+export default /* glsl */`
+uniform sampler2D smallcloudTexture;
 in vec2 texCoord;
 
 void main() {

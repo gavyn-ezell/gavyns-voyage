@@ -1,5 +1,5 @@
-export default 
-`uniform sampler2D windTexture;
+export default /* glsl */`
+uniform sampler2D windTexture;
 in vec2 texCoord;
 
 void main() {

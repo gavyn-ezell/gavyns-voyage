@@ -1,5 +1,5 @@
-export default 
-`uniform sampler2D sunTexture;
+export default /* glsl */`
+uniform sampler2D sunTexture;
 in vec2 texCoord;
 
 void main() {

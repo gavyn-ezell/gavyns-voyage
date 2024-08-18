@@ -20,10 +20,14 @@ const generateCloudTransformation = (matrix, type) => {
 
 const generateWindLinePosition = (windLine) => {
 
-    let r = Math.random() * 2.3;
+    let r = Math.random() * 0.25;
     let theta = Math.random() * 2 * Math.PI;
     
-    windLine.position.set(-(Math.random() * 10 + 20), 2 + r * Math.sin(theta), -3.58 + r * Math.cos(theta));
+    windLine.position.set(-(Math.random() * 10 + 20), 3 + r * Math.sin(theta), -7 + r * Math.cos(theta));
+}
+
+const generateGeiselMaterials = (geisel) => {
+    const geiselColors = []
 }
 
 export { generateCloudTransformation, generateWindLinePosition};
