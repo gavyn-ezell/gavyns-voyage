@@ -68,7 +68,6 @@ fourTone.magFilter = THREE.NearestFilter
 const boatTexture = new THREE.TextureLoader().load('./textures/boatTexture0.png')
 const toyboat = new THREE.Object3D();
 const outlinedtoyboat = new THREE.Object3D();
-let toyboatX = 0;
 objloader.load(
 	'./models/toyboat.obj',
 	// called when resource is loaded
@@ -362,7 +361,7 @@ gltfloader.load(
 const waterTexture = textureLoader.load('./textures/water.png');
 waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
-const waterGeometry = new THREE.PlaneGeometry(175, 175, 20, 20 ); 
+const waterGeometry = new THREE.PlaneGeometry(175, 175, 30, 30 ); 
 const waterMaterial = new THREE.ShaderMaterial(
 	{
 		fog: true,
@@ -576,7 +575,7 @@ for (let i = 0; i < windCount; i ++)
 		let windLine = new THREE.Mesh( windGeometry, windMaterial );
 		scene.add( windLine );
 		windLines.push(windLine)
-		helpers.generateWindLinePosition(windLine)
+		helpers.generateWindLinePosition(windLine, 0)
 	}
 
 const material = new THREE.LineBasicMaterial({
@@ -586,12 +585,12 @@ const material = new THREE.LineBasicMaterial({
 const points = [];
 for (let i = -10; i < 50; i+=0.1)
 {
-	points.push( new THREE.Vector3( i, 2, helpers.sigmoidPath(i) ) );
+	points.push( new THREE.Vector3( i, 1, helpers.sigmoidPath(i) ) );
 
 }
-const geometry = new THREE.BufferGeometry().setFromPoints( points );
-const line = new THREE.Line( geometry, material );
-scene.add( line );
+// const geometry = new THREE.BufferGeometry().setFromPoints( points );
+// const line = new THREE.Line( geometry, material );
+// scene.add( line );
 
 
 const clock = new THREE.Clock(true);
@@ -600,14 +599,56 @@ let deltaTime = 0.0;
 let last = 0.0
 let inForward = false;
 let inBackward = false;
-let boatX = 0.0;
+let boatX = -5;
+let boatOrientation = 1.0;
 let boatSpeed = 0.75;
+let rotationSpeed = 1.0;
+
+
 function animate() {
 	renderer.clear()
 	controls.update();
 	deltaTime = clock.getDelta()
 	time = clock.getElapsedTime()
 
+	//update rotation before caring about movement
+	if(inForward && !inBackward)
+	{
+		if (boatOrientation < 1.0)
+		{
+			boatOrientation += deltaTime*rotationSpeed
+		}
+		else {
+			boatOrientation = 1.0;
+			boatX += deltaTime*boatSpeed;
+		}
+	}
+	else if(!inForward && inBackward)
+	{
+		if (boatOrientation > 0.0)
+		{
+			boatOrientation -= deltaTime*rotationSpeed
+		}
+		else {
+			boatOrientation = 0;
+			boatX -= deltaTime*boatSpeed;
+		}
+	}
+	
+	
+	//set position of boat
+	toyboat.position.copy(helpers.calculateBoatPosition(boatX, time))
+	outlinedtoyboat.position.copy(helpers.calculateBoatPosition(boatX, time))
+
+
+	let lookPos = toyboat.position.clone()
+	helpers.calculateBoatOrientation(lookPos, boatX, time, boatOrientation)
+	toyboat.lookAt(lookPos)
+	outlinedtoyboat.lookAt(lookPos)
+	
+	
+	
+	
 	//depth render
 	water.visible = false;
 	windLines[0].visible = false;
@@ -630,8 +671,6 @@ function animate() {
 	waterMaterial.uniforms.iTime.value = time;
 	smallcloudMaterial.uniforms.iTime.value = time;
 	windMaterial.uniforms.iTime.value = time;
-	toyboat.setRotationFromAxisAngle(new THREE.Vector3(1,0,0),  (Math.PI / 12) * (0.2*Math.sin(time)))
-	outlinedtoyboat.setRotationFromAxisAngle(new THREE.Vector3(1,0,0),  (Math.PI / 12) * (0.2*Math.sin(time)))
 	if (last + 6 <= time)
 	{	
 		//clear old
@@ -645,7 +684,7 @@ function animate() {
 			let windLine = new THREE.Mesh( windGeometry, windMaterial );
 			scene.add( windLine );
 			windLines.push(windLine)
-			helpers.generateWindLinePosition(windLine)
+			helpers.generateWindLinePosition(windLine, boatX)
 		}
 		last = time
 	}
@@ -657,23 +696,8 @@ function animate() {
 	
 	}
 
-	if(inForward && !inBackward)
-	{
-		boatX += deltaTime*boatSpeed;
-	}
-	else if(!inForward && inBackward)
-	{
-		boatX -= deltaTime*boatSpeed;
-	}
 
-
-	toyboat.position.x = boatX
-	outlinedtoyboat.position.x = boatX;
-	toyboat.position.z = helpers.sigmoidPath(boatX)
-	outlinedtoyboat.position.z = helpers.sigmoidPath(boatX);
-	toyboat.position.y = helpers.calculateBoatHeight(boatX, toyboat.position.z, time)
-	outlinedtoyboat.position.y = helpers.calculateBoatHeight(boatX, outlinedtoyboat.position.z, time)
-
+	
 
 }
 
