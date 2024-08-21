@@ -28,7 +28,7 @@ export const generateWindLinePosition = (windLine, boatX) => {
     windLine.position.set(-(Math.random() * 10 + 20), 3 + r * Math.sin(theta), -7 + sigmoidPath(boatX) + r * Math.cos(theta));
 }
 
-export const calculateBoatHeight = (inx, inz, iTime) => 
+export const waveFunction = (inx, inz, iTime) => 
 {
     let x = inx + iTime;
 	let z = inz + iTime;
@@ -47,7 +47,7 @@ export const calculateBoatPosition = (x, time) =>
     let result = new THREE.Vector3();
     result.x = x
     result.z = sigmoidPath(x)
-    result.y = calculateBoatHeight(x,result.z, time)
+    result.y = waveFunction(x,result.z, time)
     return result
 }
 export const calculateBoatOrientation = (curr, x, time, orientation) => 
@@ -58,4 +58,23 @@ export const calculateBoatOrientation = (curr, x, time, orientation) =>
         vec.applyAxisAngle(UP, -Math.PI/2-(1-orientation)*(Math.PI))
         curr.add(vec)
     }
-    
+
+export const calculateSharkPosition = (r, center, time) =>
+    {
+        let result = new THREE.Vector3();
+        result.x = center.x + r*Math.cos(0.6*time)
+        result.z = center.z + r*Math.sin(0.6*time)
+        result.y = center.y + waveFunction(result.x, result.z, time)
+        return result
+    }
+
+export const calculatePlanePosition = (r, center, time) =>
+    {
+        let result = new THREE.Vector3();
+        result.x = center.x + r*Math.cos(0.6*time)
+        result.z = center.z + r*Math.sin(0.6*time)
+        result.y = center.y + Math.cos(0.6*time)
+        return result
+    }
+
+

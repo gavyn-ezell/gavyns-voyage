@@ -39,7 +39,8 @@ void main() {
 
     vec3 windwakerBlue = vec3(0.0039, 0.4353, 0.7451);
     vec3 darkBlue = vec3(0.0, 0.4118, 0.7176);
-    vec3 white = vec3(0.8039, 0.9922, 0.9647);
+    // vec3 white = vec3(0.8039, 0.9922, 0.9647);
+    vec3 white = vec3(1.0, 1.0, 1.0);
 
     vec2 screenUV = gl_FragCoord.xy / resolution;
     float fragmentLinearEyeDepth = getViewZ( gl_FragCoord.z );

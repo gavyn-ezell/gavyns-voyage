@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as helpers from './helpers.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -34,7 +35,7 @@ effect = new OutlineEffect( renderer );
 
 scene = new THREE.Scene();
 scene.background = new THREE.Color(0x4B8BE5)
-scene.fog = new THREE.Fog(0x016fbe, 1, 45)
+scene.fog = new THREE.Fog(0x016fbe, 1, 50)
 outlinedScene = new THREE.Scene();
 outlinedScene.fog = new THREE.Fog(0x016fbe, 1, 50)
 
@@ -47,7 +48,7 @@ outlinedScene.add( directionalLight.clone());
 outlinedScene.add( ambientlight.clone());
 
 camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1100 );
-camera.position.set( 0, 15, 0);
+camera.position.set( -2, 2, 5);
 
 
 const controls = new OrbitControls( camera, renderer.domElement );
@@ -58,6 +59,9 @@ controls.listenToKeyEvents(window)
 const textureLoader = new THREE.TextureLoader();
 const objloader = new OBJLoader();
 const gltfloader = new GLTFLoader();
+// const dracoLoader = new DRACOLoader();
+// dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
+// gltfloader.setDRACOLoader( dracoLoader );
 
 
 const foamInteractObjects = [];
@@ -93,7 +97,7 @@ objloader.load(
 	// called when loading is in progresses
 	function ( xhr ) {
 
-		// console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 
 	},
 	// called when loading has errors
@@ -111,9 +115,9 @@ gltfloader.load(
 	'./models/island.glb',
 	function ( gltf ) {
 
-		gltf.scene.scale.set(2.5, 2.5, 2.5);
+		gltf.scene.scale.set(3, 3, 3);
 		gltf.scene.rotateY(-Math.PI)
-		gltf.scene.translateY(-0.2)
+		gltf.scene.translateY(-0.15)
 		gltf.scene.translateX(-5)
 		gltf.scene.translateZ(6.5)
 		
@@ -169,6 +173,7 @@ gltfloader.load(
 
 	}
 );
+
 //BEAR
 const bearTexture = new THREE.TextureLoader().load('./textures/BlackBear_BaseColor.png')
 objloader.load(
@@ -297,6 +302,38 @@ gltfloader.load(
 	}
 );
 
+//PLANE
+const outlinedplane = new THREE.Object3D();
+gltfloader.load(
+	'./models/plane.glb',
+	function ( gltf ) {
+		
+		
+		const planeMaterial = new THREE.MeshToonMaterial( {
+			color: 0xffffff,
+			gradientMap: fourTone,
+			side: THREE.FrontSide
+		} );
+		gltf.scene.children[0].material = planeMaterial
+		outlinedplane.add(gltf.scene.clone())
+		outlinedScene.add( outlinedplane);
+
+	},
+	// called while loading is progressing
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+		console.log( error );
+
+	}
+);
+
 
 
 //OIL RIG
@@ -305,8 +342,8 @@ gltfloader.load(
 	function ( gltf ) {
 		
 		gltf.scene.translateY(-0.2)
-		gltf.scene.scale.set(1.2, 1.8, 1.2)
-		gltf.scene.position.set(25, 0.0, 20)
+		gltf.scene.scale.set(1.2, 2.5, 1.2)
+		gltf.scene.position.set(25, -1, 20)
 		scene.add(gltf.scene)
 		outlinedScene.add(gltf.scene.clone())
 		foamInteractObjects.push(gltf.scene)
@@ -326,6 +363,39 @@ gltfloader.load(
 
 	}
 );
+
+//SHARK FIN
+const sharkfin = new THREE.Object3D();
+const outlinedsharkfin = new THREE.Object3D();
+gltfloader.load(
+	'./models/sharkfin.glb',
+	function ( gltf ) {
+		
+		gltf.scene.scale.set(0.3, 0.3, 0.3)
+		gltf.scene.rotateX(0.15)
+		sharkfin.add(gltf.scene);
+		outlinedsharkfin.add(gltf.scene.clone())
+		
+		foamInteractObjects.push(sharkfin)
+		scene.add(sharkfin);
+		outlinedScene.add( outlinedsharkfin);
+
+	},
+	// called while loading is progressing
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+		console.log( error );
+
+	}
+);
+
 
 //FINAL ISLAND
 gltfloader.load(
@@ -355,13 +425,11 @@ gltfloader.load(
 	}
 );
 
-
-
 //WATER
 const waterTexture = textureLoader.load('./textures/water.png');
 waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
-const waterGeometry = new THREE.PlaneGeometry(175, 175, 30, 30 ); 
+const waterGeometry = new THREE.PlaneGeometry(175, 175, 40, 40 ); 
 const waterMaterial = new THREE.ShaderMaterial(
 	{
 		fog: true,
@@ -566,32 +634,10 @@ const windMaterial = new THREE.ShaderMaterial(
 		fragmentShader: windFrag
 	}
 )
-const windCount = 1;
-const windLines = [];
 
-
-for (let i = 0; i < windCount; i ++)
-	{
-		let windLine = new THREE.Mesh( windGeometry, windMaterial );
-		scene.add( windLine );
-		windLines.push(windLine)
-		helpers.generateWindLinePosition(windLine, 0)
-	}
-
-const material = new THREE.LineBasicMaterial({
-	color: 0xff0000
-});
-
-const points = [];
-for (let i = -10; i < 50; i+=0.1)
-{
-	points.push( new THREE.Vector3( i, 1, helpers.sigmoidPath(i) ) );
-
-}
-// const geometry = new THREE.BufferGeometry().setFromPoints( points );
-// const line = new THREE.Line( geometry, material );
-// scene.add( line );
-
+let windLine = new THREE.Mesh( windGeometry, windMaterial );
+helpers.generateWindLinePosition(windLine, 0)
+scene.add(windLine)
 
 const clock = new THREE.Clock(true);
 let time = 0.0;
@@ -601,17 +647,23 @@ let inForward = false;
 let inBackward = false;
 let boatX = -5;
 let boatOrientation = 1.0;
-let boatSpeed = 0.75;
+let boatSpeed = 2;
 let rotationSpeed = 1.0;
-
+let sharkCenter = new THREE.Vector3(25, -0.2, 20)
+let planeCenter = new THREE.Vector3(16, 6, 8)
+let windSpeed = 50.0;
 
 function animate() {
 	renderer.clear()
 	controls.update();
 	deltaTime = clock.getDelta()
 	time = clock.getElapsedTime()
-
-	//update rotation before caring about movement
+	
+	waterMaterial.uniforms.iTime.value = time;
+	smallcloudMaterial.uniforms.iTime.value = time;
+	windMaterial.uniforms.iTime.value = time;
+	
+	//handling boat movement
 	if(inForward && !inBackward)
 	{
 		if (boatOrientation < 1.0)
@@ -620,7 +672,7 @@ function animate() {
 		}
 		else {
 			boatOrientation = 1.0;
-			boatX += deltaTime*boatSpeed;
+			boatX = Math.min(40.5, boatX+deltaTime*boatSpeed);
 		}
 	}
 	else if(!inForward && inBackward)
@@ -631,12 +683,11 @@ function animate() {
 		}
 		else {
 			boatOrientation = 0;
-			boatX -= deltaTime*boatSpeed;
+			boatX = Math.max(-10, boatX-deltaTime*boatSpeed);
 		}
 	}
 	
-	
-	//set position of boat
+	//handling boat position and orientation
 	toyboat.position.copy(helpers.calculateBoatPosition(boatX, time))
 	outlinedtoyboat.position.copy(helpers.calculateBoatPosition(boatX, time))
 
@@ -645,13 +696,39 @@ function animate() {
 	helpers.calculateBoatOrientation(lookPos, boatX, time, boatOrientation)
 	toyboat.lookAt(lookPos)
 	outlinedtoyboat.lookAt(lookPos)
+
+	//handling wind
+	if (last + 6 <= time)
+	{	
+		helpers.generateWindLinePosition(windLine, boatX)
+		last = time
+	}
+	else {
+		windLine.position.x += windSpeed * deltaTime
+	}
 	
-	
+	//handling sharkfin position and orientation
+	let sharkPos = helpers.calculateSharkPosition(2.25,sharkCenter, time)
+	sharkfin.position.copy(sharkPos)
+	outlinedsharkfin.position.copy(sharkPos)
+
+	let sharkLook = helpers.calculateSharkPosition(2.25, sharkCenter, time+0.1)
+	sharkfin.lookAt(sharkLook)
+	outlinedsharkfin.lookAt(sharkLook)
+
+	//handling paper plane position and orientation
+	let planePos = helpers.calculatePlanePosition(4, planeCenter, -time)
+	outlinedplane.position.copy(planePos)
+	let planeLook = helpers.calculatePlanePosition(4, planeCenter, -time-0.1)
+	outlinedplane.lookAt(planeLook)
+
+
+
 	
 	
 	//depth render
 	water.visible = false;
-	windLines[0].visible = false;
+	windLine.visible = false;
 	for (let x in foamInteractObjects) { foamInteractObjects[x].visible = true;}
 	scene.overrideMaterial = depthMaterial;
 	renderer.setRenderTarget(target);
@@ -659,7 +736,7 @@ function animate() {
 
 	//main render
 	water.visible = true;
-	windLines[0].visible = true;
+	windLine.visible = true;
 	for (let x in foamInteractObjects) { foamInteractObjects[x].visible = false;}
 	scene.overrideMaterial = null;
 	renderer.setRenderTarget(null);
@@ -667,37 +744,6 @@ function animate() {
 
 	//outline render
 	effect.render(outlinedScene, camera);
-	
-	waterMaterial.uniforms.iTime.value = time;
-	smallcloudMaterial.uniforms.iTime.value = time;
-	windMaterial.uniforms.iTime.value = time;
-	if (last + 6 <= time)
-	{	
-		//clear old
-		while (windLines.length > 0)
-		{
-			scene.remove(windLines.pop())
-		}
-		//add new
-		for (let i = 0; i < windCount; i ++)
-		{
-			let windLine = new THREE.Mesh( windGeometry, windMaterial );
-			scene.add( windLine );
-			windLines.push(windLine)
-			helpers.generateWindLinePosition(windLine, boatX)
-		}
-		last = time
-	}
-	else {
-		for (let i = 0; i < windCount; i ++)
-		{
-			windLines[i].position.x += 0.75
-		}
-	
-	}
-
-
-	
 
 }
 
