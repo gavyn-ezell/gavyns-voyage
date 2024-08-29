@@ -1,0 +1,40 @@
+#wrapper {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+#voyage-text, #b, #icons {
+    position: absolute;
+}
+
+#voyage-text {
+    text-align: center;
+    color: rgb(35, 35, 35);
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    line-height: 1.25;
+    font-weight: 600;
+    font-style: normal;
+    top: 30vh;
+    left: 50vw;
+    width: 90vw;
+    transform: translate(-50%,-35%);
+    z-index: 10;
+}
+
+#icons {
+    display: flex;
+    border: solid;
+    top: 90vh;
+    left: 80vw;
+    width: 19vw;
+    height: 9vh;
+    z-index: 10;
+}
+#icons > div {
+    aspect-ratio : 1 / 1;
+    margin: auto;
+    border-radius: 50%;
+    width: 25%;
+    border: solid;
+}

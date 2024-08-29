@@ -4,6 +4,6 @@ in vec2 texCoord;
 
 void main() {
     vec4 color = texture2D( smallcloudTexture, texCoord);
-    color.a *= 0.8;
+    color.a *= 0.75;
     gl_FragColor = color;
 }`;

@@ -34,7 +34,7 @@ void main() {
     float xOffset = iTime * 0.12; // Control the speed of the effect
     
     // Apply displacement to both x and y for a 2D effect
-    uv.x += displaceAmount * displacementFunction(uv.y * 10.0  + xOffset);
+    uv.x += displaceAmount * displacementFunction(uv.y * 10.0  + xOffset) - iTime*0.001;
     uv.y += displaceAmount * displacementFunction(uv.x * 10.0 + xOffset);
 
     vec3 windwakerBlue = vec3(0.0039, 0.4353, 0.7451);
@@ -53,7 +53,6 @@ void main() {
     
     vec3 finalColor = mix(windwakerBlue, darkBlue, darkblueMask.r);
     finalColor = mix(finalColor, white, whiteMask.r);
-    //gl_FragColor = vec4(finalColor, 1.0);
     gl_FragColor.rgb = mix( white, finalColor, step( threshold / (0.1 / thickness), diff ) );
     gl_FragColor.a = 1.0;
     #include <fog_fragment>

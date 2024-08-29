@@ -161,6 +161,38 @@
 			]
 		}
 	],
+	"materials":[
+		{
+			"doubleSided":true,
+			"name":"Smooth_-_White_Geisel_MKII.001",
+			"pbrMetallicRoughness":{}
+		},
+		{
+			"doubleSided":true,
+			"name":"Particle_Board_Geisel_MKII.001",
+			"pbrMetallicRoughness":{}
+		},
+		{
+			"doubleSided":true,
+			"name":"Smooth_Precast_Structural_Geisel_MKII.001",
+			"pbrMetallicRoughness":{}
+		},
+		{
+			"doubleSided":true,
+			"name":"White_Geisel_MKII.001",
+			"pbrMetallicRoughness":{}
+		},
+		{
+			"doubleSided":true,
+			"name":"Dark_Gray_Geisel_MKII.001",
+			"pbrMetallicRoughness":{}
+		},
+		{
+			"doubleSided":true,
+			"name":"Chrome_-_Polished_Black_Geisel_MKII.001",
+			"pbrMetallicRoughness":{}
+		}
+	],
 	"meshes":[
 		{
 			"name":"Geisel MKII_Smooth - White_Geisel MKII_0.001",
@@ -171,7 +203,8 @@
 						"NORMAL":1,
 						"TEXCOORD_0":2
 					},
-					"indices":3
+					"indices":3,
+					"material":0
 				}
 			]
 		},
@@ -184,7 +217,8 @@
 						"NORMAL":5,
 						"TEXCOORD_0":6
 					},
-					"indices":7
+					"indices":7,
+					"material":1
 				}
 			]
 		},
@@ -197,7 +231,8 @@
 						"NORMAL":9,
 						"TEXCOORD_0":10
 					},
-					"indices":11
+					"indices":11,
+					"material":2
 				}
 			]
 		},
@@ -210,7 +245,8 @@
 						"NORMAL":13,
 						"TEXCOORD_0":14
 					},
-					"indices":15
+					"indices":15,
+					"material":3
 				}
 			]
 		},
@@ -223,7 +259,8 @@
 						"NORMAL":17,
 						"TEXCOORD_0":18
 					},
-					"indices":19
+					"indices":19,
+					"material":4
 				}
 			]
 		},
@@ -236,7 +273,8 @@
 						"NORMAL":21,
 						"TEXCOORD_0":22
 					},
-					"indices":23
+					"indices":23,
+					"material":5
 				}
 			]
 		}

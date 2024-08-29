@@ -19,7 +19,7 @@ void main() {
 	#include <begin_vertex>
 	#include <project_vertex>
 	#include <fog_vertex>
-	texCoord = 1.2*vec2(uv.x, uv.y);
+	texCoord = 2.0*vec2(uv.x, uv.y);
 	vec3 worldPos = vec3(modelMatrix * vec4(position, 1.0));
 	gl_Position = projectionMatrix * viewMatrix * waves(worldPos.x, worldPos.z)* modelMatrix * vec4( position, 1.0 );
 }`;

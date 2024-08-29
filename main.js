@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import * as helpers from './helpers.js';
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -28,16 +27,15 @@ renderer = new THREE.WebGLRenderer( { antialias: true, precision: "lowp"});
 renderer.autoClear = false;
 renderer.setPixelRatio(window.devicePixelRatio)
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild( renderer.domElement );
 renderer.setAnimationLoop( animate );
 effect = new OutlineEffect( renderer );
 
 
 scene = new THREE.Scene();
 scene.background = new THREE.Color(0x4B8BE5)
-scene.fog = new THREE.Fog(0x016fbe, 1, 50)
+scene.fog = new THREE.Fog(0x016fbe, 10, 80)
 outlinedScene = new THREE.Scene();
-outlinedScene.fog = new THREE.Fog(0x016fbe, 1, 50)
+outlinedScene.fog = new THREE.Fog(0x016fbe, 10, 70)
 
 
 const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 ); directionalLight.position.set(70,45, 60);
@@ -47,21 +45,15 @@ scene.add( ambientlight );
 outlinedScene.add( directionalLight.clone());
 outlinedScene.add( ambientlight.clone());
 
-camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1100 );
-camera.position.set( -2, 2, 5);
-
-
-const controls = new OrbitControls( camera, renderer.domElement );
-controls.listenToKeyEvents(window)
+camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1100 );
+// const controls = new OrbitControls( camera, renderer.domElement );
+// controls.listenToKeyEvents(window)
 
 
 //LOADERS
 const textureLoader = new THREE.TextureLoader();
 const objloader = new OBJLoader();
 const gltfloader = new GLTFLoader();
-// const dracoLoader = new DRACOLoader();
-// dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
-// gltfloader.setDRACOLoader( dracoLoader );
 
 
 const foamInteractObjects = [];
@@ -108,6 +100,8 @@ objloader.load(
 	}
 );
 
+
+
 //ISLAND
 const island = new THREE.Object3D();
 const outlinedisland = new THREE.Object3D();
@@ -116,10 +110,8 @@ gltfloader.load(
 	function ( gltf ) {
 
 		gltf.scene.scale.set(3, 3, 3);
-		gltf.scene.rotateY(-Math.PI)
-		gltf.scene.translateY(-0.15)
-		gltf.scene.translateX(-5)
-		gltf.scene.translateZ(6.5)
+		gltf.scene.rotateY(3.5*Math.PI/4)
+		gltf.scene.position.set(4.5,-0.25, -2.5)
 		
 		
 		island.add(gltf.scene);
@@ -151,9 +143,18 @@ gltfloader.load(
 	'./models/cali.glb',
 	function ( gltf ) {
 
-		gltf.scene.translateY(-0.5)
+		gltf.scene.scale.set(1.2, 1.2, 1.2)
+		gltf.scene.translateY(-0.8)
 		gltf.scene.rotateY(-Math.PI/2.1)
-		gltf.scene.position.set(16, -0.6, 8)
+		gltf.scene.position.set(16, -0.8, 12)
+
+		const californiaMaterial = new THREE.MeshToonMaterial( {
+			color:0x228B22 ,
+			gradientMap: fourTone,
+			side: THREE.FrontSide
+		} );
+		
+		gltf.scene.children[0].material = californiaMaterial
 		scene.add(gltf.scene)
 		outlinedScene.add(gltf.scene.clone())
 		foamInteractObjects.push(gltf.scene)
@@ -191,9 +192,11 @@ objloader.load(
 			node.material = bearMaterial
 		});
 		
-		object.translateY(-0.5)
+
+		object.scale.set(1.2, 1.2, 1.2)
+		object.translateY(-0.8)
 		object.rotateY(-Math.PI/2.1)
-		object.position.set(16, -0.6, 8)
+		object.position.set(15, -0.8, 11)
 		outlinedScene.add(object)
 
 
@@ -216,7 +219,7 @@ objloader.load(
 //GEISEL
 const geiselColors = [0x8C9091, 0xA5A9AA, 0xA5A9AA, 0xA5A9AA, 0x222222, 0x94C1D8];
 gltfloader.load(
-	'./models/geisel.gltf',
+	'./models/geisel.glb',
 	function ( gltf ) {
 		
 		for (let i = 0; i < gltf.scene.children[0].children.length; i++)
@@ -228,9 +231,8 @@ gltfloader.load(
 			} );
 		}
 
-		gltf.scene.translateY(-0.5)
-		gltf.scene.rotateY(-Math.PI/2.1)
-		gltf.scene.position.set(16, -0.6, 8)
+		gltf.scene.scale.set(1.2, 1.2, 1.2)
+		gltf.scene.position.set(18, -0.8, 14)
 
 		outlinedScene.add(gltf.scene)
 
@@ -255,9 +257,9 @@ gltfloader.load(
 	'./models/flag.glb',
 	function ( gltf ) {
 		
-		gltf.scene.translateY(-0.5)
+		gltf.scene.scale.set(1.8, 1.8, 1.8)
 		gltf.scene.rotateY(-Math.PI/2.1)
-		gltf.scene.position.set(16, -0.6, 8)
+		gltf.scene.position.set(16, -2, 12)
 		outlinedScene.add(gltf.scene)
 
 	},
@@ -281,9 +283,9 @@ gltfloader.load(
 	'./models/ucsdflag.glb',
 	function ( gltf ) {
 		
-		gltf.scene.translateY(-0.5)
+		gltf.scene.scale.set(1.5, 1.5, 1.5)
 		gltf.scene.rotateY(-Math.PI/2.1)
-		gltf.scene.position.set(16, -0.6, 8)
+		gltf.scene.position.set(18, -1.5, 14)
 		outlinedScene.add(gltf.scene)
 
 	},
@@ -342,8 +344,9 @@ gltfloader.load(
 	function ( gltf ) {
 		
 		gltf.scene.translateY(-0.2)
-		gltf.scene.scale.set(1.2, 2.5, 1.2)
-		gltf.scene.position.set(25, -1, 20)
+		gltf.scene.rotateY(-Math.PI/4)
+		gltf.scene.scale.set(1.5, 3.37, 1.5)
+		gltf.scene.position.set(25, -1, 25)
 		scene.add(gltf.scene)
 		outlinedScene.add(gltf.scene.clone())
 		foamInteractObjects.push(gltf.scene)
@@ -402,9 +405,9 @@ gltfloader.load(
 	'./models/finalisland.glb',
 	function ( gltf ) {
 		
-		gltf.scene.rotateY(Math.PI/2)
-		gltf.scene.scale.set(4,4,4)
-		gltf.scene.position.set(40, -0.5, 20)
+		gltf.scene.rotateY(Math.PI/2.15)
+		gltf.scene.scale.set(5,5,5)
+		gltf.scene.position.set(40, -1, 27)
 		scene.add(gltf.scene)
 		outlinedScene.add(gltf.scene.clone())
 		foamInteractObjects.push(gltf.scene)
@@ -429,7 +432,7 @@ gltfloader.load(
 const waterTexture = textureLoader.load('./textures/water.png');
 waterTexture.wrapS = waterTexture.wrapT = THREE.RepeatWrapping;
 waterTexture.magFilter = THREE.LinearFilter;
-const waterGeometry = new THREE.PlaneGeometry(175, 175, 40, 40 ); 
+const waterGeometry = new THREE.PlaneGeometry(300, 300, 40, 40 ); 
 const waterMaterial = new THREE.ShaderMaterial(
 	{
 		fog: true,
@@ -520,13 +523,15 @@ const horizonMaterial = new THREE.ShaderMaterial(
 	}
 )
 
+//
+
 const horizon = new THREE.InstancedMesh(horizonGeometry, horizonMaterial, 4)
 for ( let i = 0; i < 4; i++ ) {
 
 	let theta = i*Math.PI/2;
 	let mat = new THREE.Matrix4()
 	let rotationMat = (new THREE.Matrix4()).makeRotationY(theta)
-	let translationMat = (new THREE.Matrix4()).makeTranslation(new THREE.Vector3(-500*Math.sin(theta),30,-500*Math.cos(theta)))
+	let translationMat = (new THREE.Matrix4()).makeTranslation(new THREE.Vector3(-500*Math.sin(theta),20,-500*Math.cos(theta)))
 	mat.multiplyMatrices(translationMat, rotationMat);
 	horizon.setMatrixAt( i, mat );
 
@@ -558,7 +563,7 @@ scene.add( horizon );
 
 //SUN
 const sunTexture = textureLoader.load('./textures/sun.png');
-const sunGeometry = new THREE.PlaneGeometry(150, 150, 1, 1)
+const sunGeometry = new THREE.PlaneGeometry(125, 125, 1, 1)
 const sunMaterial = new THREE.ShaderMaterial(
 	{
 		transparent: true,
@@ -573,8 +578,8 @@ const sunMaterial = new THREE.ShaderMaterial(
 )
 const sun = new THREE.Mesh( sunGeometry, sunMaterial );
 scene.add(sun)
-sun.translateY(400);
-sun.translateZ(-100);
+sun.translateY(200);
+sun.translateZ(-600);
 sun.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
 
 //CLOUDS
@@ -598,7 +603,7 @@ const smallcloudMesh = new THREE.InstancedMesh( smallcloudGeometry, smallcloudMa
 
 for ( let i = 0; i < cloudCount; i ++ ) {
 
-	helpers.generateCloudTransformation( matrix, 0 );
+	helpers.generateCloudTransformation( matrix );
 	smallcloudMesh.setMatrixAt( i, matrix );
 
 }
@@ -620,7 +625,7 @@ context.fillStyle = gradient;
 context.fillRect( 0, 0, 64, 8 );
 
 const windTexture = new THREE.CanvasTexture( canvas );
-const windGeometry = new THREE.PlaneGeometry( 30, 0.025, 20, 1 );
+const windGeometry = new THREE.PlaneGeometry( 70, 0.025, 20, 1 );
 const windMaterial = new THREE.ShaderMaterial(
 	{
 		transparent: true,
@@ -639,25 +644,28 @@ let windLine = new THREE.Mesh( windGeometry, windMaterial );
 helpers.generateWindLinePosition(windLine, 0)
 scene.add(windLine)
 
+
 const clock = new THREE.Clock(true);
 let time = 0.0;
 let deltaTime = 0.0;
 let last = 0.0
 let inForward = false;
 let inBackward = false;
-let boatX = -5;
+let boatX = -20;
 let boatOrientation = 1.0;
-let boatSpeed = 2;
+let boatSpeed = 3;
 let rotationSpeed = 1.0;
-let sharkCenter = new THREE.Vector3(25, -0.2, 20)
-let planeCenter = new THREE.Vector3(16, 6, 8)
-let windSpeed = 50.0;
+let sharkCenter = new THREE.Vector3(25, -0.2, 25)
+let planeCenter = new THREE.Vector3(16, 4, 8)
+let windSpeed = 40.0;
+
+const voyageText = document.getElementById("voyage-text");
 
 function animate() {
 	renderer.clear()
-	controls.update();
 	deltaTime = clock.getDelta()
 	time = clock.getElapsedTime()
+	// controls.update()
 	
 	waterMaterial.uniforms.iTime.value = time;
 	smallcloudMaterial.uniforms.iTime.value = time;
@@ -672,7 +680,7 @@ function animate() {
 		}
 		else {
 			boatOrientation = 1.0;
-			boatX = Math.min(40.5, boatX+deltaTime*boatSpeed);
+			boatX = Math.min(39.5, boatX+deltaTime*boatSpeed);
 		}
 	}
 	else if(!inForward && inBackward)
@@ -683,10 +691,14 @@ function animate() {
 		}
 		else {
 			boatOrientation = 0;
-			boatX = Math.max(-10, boatX-deltaTime*boatSpeed);
+			boatX = Math.max(-20, boatX-deltaTime*boatSpeed);
 		}
 	}
-	
+
+	//handling UI
+	helpers.changeText(voyageText, boatX)
+
+
 	//handling boat position and orientation
 	toyboat.position.copy(helpers.calculateBoatPosition(boatX, time))
 	outlinedtoyboat.position.copy(helpers.calculateBoatPosition(boatX, time))
@@ -696,6 +708,18 @@ function animate() {
 	helpers.calculateBoatOrientation(lookPos, boatX, time, boatOrientation)
 	toyboat.lookAt(lookPos)
 	outlinedtoyboat.lookAt(lookPos)
+
+	// handling camera
+	let cameraPos = toyboat.position.clone()
+	helpers.calculateCameraPosition(cameraPos, boatX, time)
+	cameraPos.y += 4
+	camera.position.copy(cameraPos)
+
+	let cameraLook = toyboat.position.clone()
+	cameraLook.y +=3
+	camera.lookAt(cameraLook)
+
+
 
 	//handling wind
 	if (last + 6 <= time)
@@ -745,9 +769,32 @@ function animate() {
 	//outline render
 	effect.render(outlinedScene, camera);
 
+
+
 }
 
+const wrapper = document.getElementById("wrapper")
+const renderElement = renderer.domElement;
+renderElement.id = "b"
+wrapper.appendChild( renderer.domElement);
 
+function onWindowResize() {
+
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	let pixelRatio = renderer.getPixelRatio()
+	target.setSize(window.innerWidth * pixelRatio, window.innerHeight *pixelRatio,)
+
+	waterMaterial.uniforms.resolution.value.set(
+		window.innerWidth * pixelRatio,
+		window.innerHeight * pixelRatio,
+	);
+
+}
+
+window.addEventListener( 'resize', onWindowResize, false );
 
 //handling movement
 window.addEventListener( "keydown", (event) => {
