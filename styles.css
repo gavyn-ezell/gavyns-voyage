@@ -3,7 +3,7 @@
     height: 100vh;
     position: relative;
 }
-#voyage-text, #b, #icons {
+#voyage-text, #b, #icon-container {
     position: absolute;
 }
 
@@ -22,19 +22,36 @@
     z-index: 10;
 }
 
-#icons {
+#icon-container {
     display: flex;
-    border: solid;
     top: 90vh;
-    left: 80vw;
-    width: 19vw;
+    left: 85vw;
+    width: 14vw;
     height: 9vh;
     z-index: 10;
+    /* border: solid; */
 }
-#icons > div {
+.icon {
     aspect-ratio : 1 / 1;
     margin: auto;
     border-radius: 50%;
-    width: 25%;
-    border: solid;
+    width: 6vmin;
+    background-color: white;
+    position: relative;
+    /* border: solid; */
+}
+.icon:hover
+{
+    transform: scale(1.1);
+}
+.icon img
+{
+    position:absolute;
+    width: 80%;
+    height: 80%;
+    left: 50%;
+    top:50%;
+    transform: translate(-50%,-50%);
+    margin: auto;
+    /* border: solid; */
 }

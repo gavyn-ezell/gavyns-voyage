@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import * as helpers from './helpers.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
 
 //SHADER IMPORTS
@@ -46,9 +45,6 @@ outlinedScene.add( directionalLight.clone());
 outlinedScene.add( ambientlight.clone());
 
 camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1100 );
-// const controls = new OrbitControls( camera, renderer.domElement );
-// controls.listenToKeyEvents(window)
-
 
 //LOADERS
 const textureLoader = new THREE.TextureLoader();
@@ -644,7 +640,6 @@ let windLine = new THREE.Mesh( windGeometry, windMaterial );
 helpers.generateWindLinePosition(windLine, 0)
 scene.add(windLine)
 
-
 const clock = new THREE.Clock(true);
 let time = 0.0;
 let deltaTime = 0.0;
@@ -665,7 +660,6 @@ function animate() {
 	renderer.clear()
 	deltaTime = clock.getDelta()
 	time = clock.getElapsedTime()
-	// controls.update()
 	
 	waterMaterial.uniforms.iTime.value = time;
 	smallcloudMaterial.uniforms.iTime.value = time;
