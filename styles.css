@@ -3,8 +3,21 @@
     height: 100vh;
     position: relative;
 }
-#voyage-text, #b, #icon-container {
+
+.in-wrapper{
     position: absolute;
+}
+#loadscreen{
+    background-color: dodgerblue;
+    transition: opacity 4s ease-in-out;
+    opacity: 1;
+    width: 100vw;
+    height: 100vh;
+    z-index: 11;
+}
+
+#loadscreen.fadeout{
+    opacity: 0;
 }
 
 #voyage-text {
@@ -53,5 +66,4 @@
     top:50%;
     transform: translate(-50%,-50%);
     margin: auto;
-    /* border: solid; */
 }
