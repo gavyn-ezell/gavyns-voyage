@@ -58,7 +58,7 @@ function init() {
     const loadScreen = document.getElementById("loadscreen");
 	const fillElement = document.getElementById("progress-fill");
 	const startButton = document.getElementById("start-button");
-	startButton.addEventListener("click", () => {loadScreen.classList.add("fadeout")})
+	startButton.addEventListener("click", () => {loadScreen.classList.add("fadeout"); inLoad = false;})
 	loadScreen.addEventListener("transitionend", (e) => {e.target.remove()})
     
 	const loadManager = new THREE.LoadingManager();
@@ -652,7 +652,7 @@ function init() {
     scene.add(windLine)
 
 }
-
+let inLoad = true;
 let time = 0.0;
 let deltaTime = 0.0;
 let last = 0.0
@@ -715,14 +715,21 @@ function animate() {
 	outlinedtoyboat.lookAt(lookPos)
 
 	// handling camera
-	let cameraPos = toyboat.position.clone()
-	helpers.calculateCameraPosition(cameraPos, boatX, time)
-	cameraPos.y += 4
-	camera.position.copy(cameraPos)
-
-	let cameraLook = toyboat.position.clone()
-	cameraLook.y +=3
-	camera.lookAt(cameraLook)
+    if (inLoad)
+    {
+        camera.position.copy(new THREE.Vector3(25, 25, 25));
+        camera.lookAt(new THREE.Vector3(25, 0, 25));
+    }
+    else {
+        let cameraPos = toyboat.position.clone()
+        helpers.calculateCameraPosition(cameraPos, boatX, time)
+        cameraPos.y += 4
+        camera.position.copy(cameraPos)
+    
+        let cameraLook = toyboat.position.clone()
+        cameraLook.y +=3
+        camera.lookAt(cameraLook)
+    }
 
 
 
