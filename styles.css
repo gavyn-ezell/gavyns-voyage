@@ -7,9 +7,10 @@
 .in-wrapper{
     position: absolute;
 }
+
 #loadscreen{
     background-color: dodgerblue;
-    transition: opacity 4s ease-in-out;
+    transition: opacity 0.2s;
     opacity: 1;
     width: 100vw;
     height: 100vh;
@@ -51,7 +52,6 @@
     width: 6vmin;
     background-color: white;
     position: relative;
-    /* border: solid; */
 }
 .icon:hover
 {
@@ -66,4 +66,65 @@
     top:50%;
     transform: translate(-50%,-50%);
     margin: auto;
+}
+
+.bar-button{
+  position:absolute;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 100px;
+  transform: translate(-50%, -50%);
+  background-color: rgb(0, 90, 180);
+  color:white;
+  border: 0;
+  border-radius: 999px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  word-break: break-word;
+} 
+
+#progress-bar {
+    z-index: 11;
+}
+#progress-bar-text {
+    position: absolute;
+    border-radius: 999px;
+    color: rgb(35, 35, 35);
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    line-height: 100px;  
+    font-family: "Montserrat", sans-serif;
+    font-size: 60px;
+    font-weight: 600;
+    z-index: 12;
+
+}
+#progress-fill
+{
+  position: absolute;
+  border-radius: 999px;
+  height:100%;
+  width:0%;
+  background-color: white;
+  z-index: 11;
+}
+
+#start-button
+{
+    text-align: center;
+    line-height: 100px;  
+    font-family: "Montserrat", sans-serif;
+    font-size: 60px;
+    font-weight: 600;
+    z-index: 10;
+}
+
+
+#start-button:hover
+{
+    background-color: white;
+    color: rgb(35, 35, 35);
 }

@@ -30,6 +30,7 @@ foamInteractObjects;
 init();
 renderer.setAnimationLoop( animate );
 
+
 function init() {
     
     renderer = new THREE.WebGLRenderer( { antialias: true, precision: "lowp"});
@@ -54,19 +55,26 @@ function init() {
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1100 );
     clock = new THREE.Clock(true);
 
-    const loadScreen = document.getElementById("loadscreen")
-    const loadManager = new THREE.LoadingManager();
+    const loadScreen = document.getElementById("loadscreen");
+	const fillElement = document.getElementById("progress-fill");
+	const startButton = document.getElementById("start-button");
+	startButton.addEventListener("click", () => {loadScreen.classList.add("fadeout")})
+	loadScreen.addEventListener("transitionend", (e) => {e.target.remove()})
+    
+	const loadManager = new THREE.LoadingManager();
     loadManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
         console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
-        loadScreen.addEventListener("transitionend", (e) => {e.target.remove()});
     };
     loadManager.onLoad = function ( ) {
         console.log( 'Loading complete!');
-        loadScreen.classList.add( 'fadeout' );
+		document.getElementById("progress-bar").remove();
+
+
     };
     
     loadManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
         console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+		fillElement.style.width = Math.round(itemsLoaded*100 / itemsTotal) + '%';
     };
     
     loadManager.onError = function ( url ) {
@@ -656,7 +664,7 @@ let boatSpeed = 3;
 let rotationSpeed = 1.0;
 let sharkCenter = new THREE.Vector3(25, -0.2, 25)
 let planeCenter = new THREE.Vector3(16, 4, 8)
-let windSpeed = 60.0;
+let windSpeed = 50.0;
 const text = document.getElementById("voyage-text");
 
 function animate() {
@@ -768,7 +776,7 @@ function animate() {
 
 const wrapper = document.getElementById("wrapper")
 const renderElement = renderer.domElement;
-renderElement.id = "b"
+renderElement.classList.add("in-wrapper");
 wrapper.appendChild( renderer.domElement);
 
 function onWindowResize() {
