@@ -12,6 +12,9 @@ uniform float cameraNear;
 uniform float cameraFar;
 uniform vec2 resolution;
 uniform float threshold;
+uniform vec3 water;
+uniform vec3 darkwater;
+uniform vec3 foam;
 
 
 float displacementFunction(float x) {
@@ -34,13 +37,9 @@ void main() {
     float xOffset = iTime * 0.12; // Control the speed of the effect
     
     // Apply displacement to both x and y for a 2D effect
-    uv.x += displaceAmount * displacementFunction(uv.y * 10.0  + xOffset) - iTime*0.001;
+    uv.x += displaceAmount * displacementFunction(uv.y * 10.0  + xOffset);
     uv.y += displaceAmount * displacementFunction(uv.x * 10.0 + xOffset);
 
-    vec3 windwakerBlue = vec3(0.0039, 0.4353, 0.7451);
-    vec3 darkBlue = vec3(0.0, 0.4118, 0.7176);
-    // vec3 white = vec3(0.8039, 0.9922, 0.9647);
-    vec3 white = vec3(1.0, 1.0, 1.0);
 
     vec2 screenUV = gl_FragCoord.xy / resolution;
     float fragmentLinearEyeDepth = getViewZ( gl_FragCoord.z );
@@ -51,9 +50,9 @@ void main() {
     vec4 darkblueMask = texture2D(waterTexture, 25.0 * (uv+ vec2(0.27, 0.78)));
     vec4 whiteMask = texture2D(waterTexture, 25.0 * uv);
     
-    vec3 finalColor = mix(windwakerBlue, darkBlue, darkblueMask.r);
-    finalColor = mix(finalColor, white, whiteMask.r);
-    gl_FragColor.rgb = mix( white, finalColor, step( threshold / (0.1 / thickness), diff ) );
+    vec3 finalColor = mix(water, darkwater, darkblueMask.r);
+    finalColor = mix(finalColor, foam, whiteMask.r);
+    gl_FragColor.rgb = mix( foam, finalColor, step( threshold / (0.1 / thickness), diff ) );
     gl_FragColor.a = 1.0;
     #include <fog_fragment>
 }`;

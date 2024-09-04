@@ -4,6 +4,6 @@ in vec2 texCoord;
 
 void main() {
     vec4 color = texture2D( windTexture, texCoord);
-    color.a *= 0.6;
+    color.a *= 0.1;
     gl_FragColor = color;
 }`;

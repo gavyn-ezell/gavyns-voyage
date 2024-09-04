@@ -20,12 +20,16 @@ import windVert from './shaders/wind/wind.vert.js';
 import windFrag from './shaders/wind/wind.frag.js';
 
 let camera, scene, outlinedScene, effect, clock, renderer, target;
-let waterMaterial, smallcloudMaterial, windMaterial, depthMaterial;
+let mode, sceneUniforms;
+let listener, song0, song1, sound;
+let sunMaterial, horizonMaterial, distantWaterMaterial, waterMaterial, smallcloudMaterial, windMaterial, depthMaterial;
 
 let toyboat, outlinedtoyboat, 
 sharkfin, outlinedsharkfin, 
-water, windLine, outlinedplane,
-foamInteractObjects;
+windLine, windLineSpawnPoint,
+outlinedplane,
+water,foamInteractObjects, 
+smallcloudMesh, horizon;
 
 init();
 renderer.setAnimationLoop( animate );
@@ -41,14 +45,13 @@ function init() {
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x4B8BE5)
-    scene.fog = new THREE.Fog(0x016fbe, 10, 80)
+    scene.fog = new THREE.Fog(0x016fbe, 20, 80)
     outlinedScene = new THREE.Scene();
-    outlinedScene.fog = new THREE.Fog(0x016fbe, 10, 70)
 
     const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 ); directionalLight.position.set(70,45, 60);
     const ambientlight = new THREE.AmbientLight( 0xffffff );
-    scene.add( directionalLight );
-    scene.add( ambientlight );
+    // scene.add( directionalLight );
+    // scene.add( ambientlight );
     outlinedScene.add( directionalLight.clone());
     outlinedScene.add( ambientlight.clone());
 
@@ -63,7 +66,7 @@ function init() {
     
 	const loadManager = new THREE.LoadingManager();
     loadManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
-        console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+        // console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
     };
     loadManager.onLoad = function ( ) {
         console.log( 'Loading complete!');
@@ -73,25 +76,74 @@ function init() {
     };
     
     loadManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
-        console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+        // console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
 		fillElement.style.width = Math.round(itemsLoaded*100 / itemsTotal) + '%';
     };
     
     loadManager.onError = function ( url ) {
         console.log( 'There was an error loading ' + url );
     };
+
     //LOADING MODELS AND BUILDING SCENE
     const textureLoader = new THREE.TextureLoader(loadManager);
     const objloader = new OBJLoader(loadManager);
     const gltfloader = new GLTFLoader(loadManager);
+    const audioLoader = new THREE.AudioLoader( loadManager );
+    
+    listener = new THREE.AudioListener();
+    camera.add( listener );
 
+    // create a global audio source
+    song0 = new THREE.Audio( listener );
+    song1 = new THREE.Audio(listener);
+    sound = song0;
+
+    // load a sound and set it as the Audio object's buffer
+    audioLoader.load( '/audio/bubblaine.mp3', function( buffer ) {
+        song0.setBuffer( buffer );
+        song0.setLoop( true );
+        song0.setVolume( 0.2 );
+    });
+
+    audioLoader.load( '/audio/bubblaine-underwater.mp3', function( buffer ) {
+        song1.setBuffer( buffer );
+        song1.setLoop( true );
+        song1.setVolume( 0.2 );
+    });
+
+    mode = 0;
+    sceneUniforms = {
+        0:{
+            background: new THREE.Color(0x4B8BE5),
+            fog: new THREE.Fog(0x016fbe, 20, 80),
+            sky: new THREE.Vector3(0.294, 0.545, 0.898),//new THREE.Color(0x4B8BE5),
+            sun: new THREE.Vector3(1.0,0.988,0.788),
+            horizon: new THREE.Vector3(0.624, 0.902, 1),
+            water: new THREE.Vector3(0.0039, 0.4353, 0.7451),
+            darkwater: new THREE.Vector3(0.01, 0.4118, 0.7176),
+            foam: new THREE.Vector3(1.0, 1.0, 1.0)
+
+        },
+        1: {
+            background: new THREE.Color(0x192A58),
+            fog: new THREE.Fog(0x0D1834, 10, 70),
+            sky: new THREE.Vector3(0.098, 0.165, 0.345),
+            sun: new THREE.Vector3(1.0, 1.0, 1.0),
+            horizon: new THREE.Vector3(0.051, 0.094, 0.204),
+            water: new THREE.Vector3(0.051, 0.094, 0.204),
+            darkwater: new THREE.Vector3(0.047, 0.09, 0.2),
+            foam: new THREE.Vector3(0.45, 0.45, 0.45)
+
+        }
+    }
+    
     foamInteractObjects = [];
     
     //BOAT
-    const fourTone = new THREE.TextureLoader().load('./textures/fourTone.jpg')
+    const fourTone = textureLoader.load('./textures/fourTone.jpg')
     fourTone.minFilter = THREE.NearestFilter
     fourTone.magFilter = THREE.NearestFilter
-    const boatTexture = new THREE.TextureLoader().load('./textures/boatTexture0.png')
+    const boatTexture = textureLoader.load('./textures/boatTexture0.png')
     toyboat = new THREE.Object3D();
     outlinedtoyboat = new THREE.Object3D();
     objloader.load(
@@ -206,7 +258,7 @@ function init() {
     );
 
     //BEAR
-    const bearTexture = new THREE.TextureLoader().load('./textures/BlackBear_BaseColor.png')
+    const bearTexture = textureLoader.load('./textures/BlackBear_BaseColor.png')
     objloader.load(
         './models/bear.obj',
         // called when resource is loaded
@@ -487,6 +539,9 @@ function init() {
                     },
                     iTime: { value: 0},
                     boatPos: { value: new THREE.Vector2()},
+                    water: {value: sceneUniforms[mode].water},
+                    darkwater: {value: sceneUniforms[mode].darkwater},
+                    foam: {value: sceneUniforms[mode].foam}
                 },
             ]		 ),
             vertexShader: waterVert,
@@ -524,11 +579,14 @@ function init() {
     const distantWaterTexture = textureLoader.load('./textures/distantWater.png');
     distantWaterTexture.magFilter = THREE.LinearFilter;
     const distantWaterGeometry = new THREE.PlaneGeometry(1000, 1000, 1, 1 ); 
-    const distantWaterMaterial = new THREE.ShaderMaterial(
+    distantWaterMaterial = new THREE.ShaderMaterial(
         {
             uniforms: 
             {
                 distantWaterTexture: { value: distantWaterTexture },
+                horizon: { value: sceneUniforms[mode].horizon },
+                water: { value: sceneUniforms[mode].water },
+
             },
             vertexShader: distantWaterVert,
             fragmentShader: distantWaterFrag
@@ -542,20 +600,21 @@ function init() {
     //HORIZON
     const horizonTexture = textureLoader.load('./textures/horizon.png');
     const horizonGeometry = new THREE.PlaneGeometry(1000, 150, 1, 1);
-    const horizonMaterial = new THREE.ShaderMaterial(
+    horizonMaterial = new THREE.ShaderMaterial(
         {
             uniforms:
             {
-                horizonTexture: {value : horizonTexture}
+                horizonTexture: {value : horizonTexture},
+                horizon: {value: sceneUniforms[mode].horizon},
+                sky: {value: sceneUniforms[mode].sky}
             },
             vertexShader: horizonVert,
             fragmentShader: horizonFrag
         }
     )
 
-    //
 
-    const horizon = new THREE.InstancedMesh(horizonGeometry, horizonMaterial, 4)
+    horizon = new THREE.InstancedMesh(horizonGeometry, horizonMaterial, 4)
     for ( let i = 0; i < 4; i++ ) {
 
         let theta = i*Math.PI/2;
@@ -571,13 +630,16 @@ function init() {
     //SUN
     const sunTexture = textureLoader.load('./textures/sun.png');
     const sunGeometry = new THREE.PlaneGeometry(125, 125, 1, 1)
-    const sunMaterial = new THREE.ShaderMaterial(
+    sunMaterial = new THREE.ShaderMaterial(
         {
             transparent: true,
             depthWrite: false,
             side: THREE.DoubleSide,
             uniforms: {
                 sunTexture: { value: sunTexture },
+                sun: {value: sceneUniforms[mode].sun},
+                sky: {value: sceneUniforms[mode].sky}
+
             },
             vertexShader: sunVert,
             fragmentShader: sunFrag
@@ -606,7 +668,7 @@ function init() {
             fragmentShader: smallcloudFrag
         }
     )
-    const smallcloudMesh = new THREE.InstancedMesh( smallcloudGeometry, smallcloudMaterial, cloudCount );
+    smallcloudMesh = new THREE.InstancedMesh( smallcloudGeometry, smallcloudMaterial, cloudCount );
 
     for ( let i = 0; i < cloudCount; i ++ ) {
 
@@ -626,13 +688,13 @@ function init() {
 
     const gradient = context.createLinearGradient( 0, 0, 64, 0 );
     gradient.addColorStop( 0.0, 'rgba(255,255,255,0)' );
-    gradient.addColorStop( 0.5, 'rgba(255,255,255,32)' );
+    gradient.addColorStop( 0.5, 'rgba(255,255,255,16)' );
     gradient.addColorStop( 1.0, 'rgba(255,255,255,0)' );
     context.fillStyle = gradient;
     context.fillRect( 0, 0, 64, 8 );
 
     const windTexture = new THREE.CanvasTexture( canvas );
-    const windGeometry = new THREE.PlaneGeometry( 50, 0.025, 20, 1 );
+    const windGeometry = new THREE.PlaneGeometry( 50, 0.015, 20, 1 );
     windMaterial = new THREE.ShaderMaterial(
         {
             transparent: true,
@@ -648,8 +710,16 @@ function init() {
     )
 
     windLine = new THREE.Mesh( windGeometry, windMaterial );
-    helpers.generateWindLinePosition(windLine, 0)
-    scene.add(windLine)
+    scene.add(windLine);
+    windLineSpawnPoint = new THREE.Object3D()
+    camera.add(windLineSpawnPoint);
+    windLineSpawnPoint.translateZ(-7);
+    windLineSpawnPoint.translateX(-20);
+
+    helpers.generateWindLineTransformation( windLine, windLineSpawnPoint);
+
+
+
 
 }
 let inLoad = true;
@@ -659,12 +729,13 @@ let last = 0.0
 let inForward = false;
 let inBackward = false;
 let boatX = -20;
-let boatOrientation = 1.0;
+let boatOrientation = 0.75;
 let boatSpeed = 3;
 let rotationSpeed = 1.0;
 let sharkCenter = new THREE.Vector3(25, -0.2, 25)
 let planeCenter = new THREE.Vector3(16, 4, 8)
-let windSpeed = 50.0;
+let windSpeed = 30.0;
+let windDir = new THREE.Vector3(1,0,0)
 const text = document.getElementById("voyage-text");
 
 function animate() {
@@ -672,7 +743,22 @@ function animate() {
 	deltaTime = clock.getDelta()
 	time = clock.getElapsedTime()
 	
-	waterMaterial.uniforms.iTime.value = time;
+    sunMaterial.uniforms.sky.value = sceneUniforms[mode].sky
+    sunMaterial.uniforms.sun.value = sceneUniforms[mode].sun
+    
+    horizonMaterial.uniforms.sky.value = sceneUniforms[mode].sky
+    horizonMaterial.uniforms.horizon.value = sceneUniforms[mode].horizon;
+
+    distantWaterMaterial.uniforms.horizon.value = sceneUniforms[mode].horizon;
+    distantWaterMaterial.uniforms.water.value = sceneUniforms[mode].water;
+    
+    waterMaterial.uniforms.water.value = sceneUniforms[mode].water
+    waterMaterial.uniforms.darkwater.value = sceneUniforms[mode].darkwater
+    waterMaterial.uniforms.foam.value = sceneUniforms[mode].foam
+
+	
+    
+    waterMaterial.uniforms.iTime.value = time;
 	smallcloudMaterial.uniforms.iTime.value = time;
 	windMaterial.uniforms.iTime.value = time;
 	
@@ -714,33 +800,35 @@ function animate() {
 	toyboat.lookAt(lookPos)
 	outlinedtoyboat.lookAt(lookPos)
 
-	// handling camera
-    if (inLoad)
+	//handling camera
+    if (inLoad) 
     {
         camera.position.copy(new THREE.Vector3(25, 25, 25));
         camera.lookAt(new THREE.Vector3(25, 0, 25));
     }
     else {
         let cameraPos = toyboat.position.clone()
+        cameraPos.y = 0;
         helpers.calculateCameraPosition(cameraPos, boatX, time)
         cameraPos.y += 4
         camera.position.copy(cameraPos)
     
         let cameraLook = toyboat.position.clone()
-        cameraLook.y +=3
+        cameraLook.y = 3
         camera.lookAt(cameraLook)
     }
-
+   
 
 
 	//handling wind
 	if (last + 6 <= time)
 	{	
-		helpers.generateWindLinePosition(windLine, boatX)
-		last = time
+        
+        helpers.generateWindLineTransformation(windLine, windLineSpawnPoint);
+		last = time;
 	}
 	else {
-		windLine.position.x += windSpeed * deltaTime
+		windLine.translateOnAxis(windDir, windSpeed*deltaTime)
 	}
 	
 	//handling sharkfin position and orientation
@@ -826,3 +914,47 @@ window.addEventListener( "keyup", (event) => {
 		inBackward = false;
 	}}, false,
   );
+
+let mute = true;
+const musicButton = document.getElementsByTagName("img")[0]
+musicButton.addEventListener("click", () => {
+    mute = !mute;
+    if (mute){
+        musicButton.src = "/images/muteicon.png"
+        sound.pause();
+    }
+    else{
+        musicButton.src = "/images/volumeicon.png"
+        sound.play();
+    }
+});
+
+let light = true;
+const modeButton = document.getElementsByTagName("img")[1]
+modeButton.addEventListener("click", () => {
+    light = !light;
+    mode = 1 - mode;
+    helpers.updateMode(mode, scene, smallcloudMesh, horizon, sceneUniforms)
+    if (light){
+        text.style.color = "rgb(35, 35, 35)"
+        modeButton.src = "/images/darkicon.png"
+        sound.pause();
+        sound = song0;
+        if (!mute)
+        {
+            sound.play();
+        }
+    }
+    else{
+        text.style.color = "rgb(230,230, 230)"
+        modeButton.src = "/images/lighticon.png"
+        sound.pause();
+        sound = song1;
+        if (!mute)
+        {
+            sound.play();
+        }
+    }
+});
+
+
