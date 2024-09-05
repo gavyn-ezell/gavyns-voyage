@@ -121,7 +121,8 @@ function init() {
             horizon: new THREE.Vector3(0.624, 0.902, 1),
             water: new THREE.Vector3(0.0039, 0.4353, 0.7451),
             darkwater: new THREE.Vector3(0.01, 0.4118, 0.7176),
-            foam: new THREE.Vector3(1.0, 1.0, 1.0)
+            foam: new THREE.Vector3(1.0, 1.0, 1.0),
+            windOpacity: 0.5,
 
         },
         1: {
@@ -132,7 +133,8 @@ function init() {
             horizon: new THREE.Vector3(0.051, 0.094, 0.204),
             water: new THREE.Vector3(0.051, 0.094, 0.204),
             darkwater: new THREE.Vector3(0.047, 0.09, 0.2),
-            foam: new THREE.Vector3(0.45, 0.45, 0.45)
+            foam: new THREE.Vector3(0.45, 0.45, 0.45),
+            windOpacity: 0.1,
 
         }
     }
@@ -702,7 +704,8 @@ function init() {
             side: THREE.DoubleSide,
             uniforms: {
                 windTexture: { value: windTexture },
-                iTime: { value: 0}
+                iTime: { value: 0},
+                windOpacity: {value: sceneUniforms[mode].windOpacity}
             },
             vertexShader: windVert,
             fragmentShader: windFrag
@@ -743,6 +746,7 @@ function animate() {
 	deltaTime = clock.getDelta()
 	time = clock.getElapsedTime()
 	
+    //TODO FIX THIS GIANT CHUNK OF UNIFORM SETTING, DOESNT HAVE TO BE DONE IN EVERY CALL TO ANIMATE()
     sunMaterial.uniforms.sky.value = sceneUniforms[mode].sky
     sunMaterial.uniforms.sun.value = sceneUniforms[mode].sun
     
@@ -755,6 +759,8 @@ function animate() {
     waterMaterial.uniforms.water.value = sceneUniforms[mode].water
     waterMaterial.uniforms.darkwater.value = sceneUniforms[mode].darkwater
     waterMaterial.uniforms.foam.value = sceneUniforms[mode].foam
+
+    windMaterial.uniforms.windOpacity.value = sceneUniforms[mode].windOpacity
 
 	
     
@@ -821,7 +827,7 @@ function animate() {
 
 
 	//handling wind
-	if (last + 6 <= time)
+	if (last + 6  <= time)
 	{	
         
         helpers.generateWindLineTransformation(windLine, windLineSpawnPoint);

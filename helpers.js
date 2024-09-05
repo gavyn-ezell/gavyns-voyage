@@ -21,7 +21,7 @@ export const generateWindLineTransformation = (windLine, spawnPoint) => {
 
     let v = new THREE.Vector3();
     spawnPoint.getWorldPosition(v);
-    v.y+=1.5
+    v.y += 1.2 + Math.random() * 0.6
     windLine.position.set(v.x,v.y,v.z)
     
     let q = new THREE.Quaternion();
@@ -34,7 +34,7 @@ export const waveFunction = (inx, inz, iTime) =>
 {
     let x = inx + iTime;
 	let z = inz + iTime;
-	let y = 0.1*(Math.sin(0.2*x + 0.4*z) + 2.0 * Math.sin(0.1*x - 0.2*z));
+	let y = 0.06*(Math.sin(0.2*x + 0.4*z) + 2.0 * Math.sin(0.1*x - 0.2*z));
 
     return y;
 }
@@ -49,7 +49,7 @@ export const calculateBoatPosition = (x, time) =>
     let result = new THREE.Vector3();
     result.x = x
     result.z = sigmoidPath(x)
-    result.y = waveFunction(x,result.z, time)-0.1
+    result.y = waveFunction(x,result.z, time)
     return result
 }
 
