@@ -22,6 +22,7 @@ import windFrag from './shaders/wind/wind.frag.js';
 let camera, scene, outlinedScene, effect, clock, renderer, target;
 let mode, sceneUniforms;
 let listener, song0, song1, sound;
+let directionalLight, ambientLight;
 let sunMaterial, horizonMaterial, distantWaterMaterial, waterMaterial, smallcloudMaterial, windMaterial, depthMaterial;
 
 let toyboat, outlinedtoyboat, 
@@ -30,6 +31,7 @@ windLine, windLineSpawnPoint,
 outlinedplane,
 water,foamInteractObjects, 
 smallcloudMesh, horizon;
+
 
 init();
 renderer.setAnimationLoop( animate );
@@ -48,12 +50,10 @@ function init() {
     scene.fog = new THREE.Fog(0x016fbe, 20, 80)
     outlinedScene = new THREE.Scene();
 
-    const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 ); directionalLight.position.set(70,45, 60);
-    const ambientlight = new THREE.AmbientLight( 0xffffff );
-    // scene.add( directionalLight );
-    // scene.add( ambientlight );
-    outlinedScene.add( directionalLight.clone());
-    outlinedScene.add( ambientlight.clone());
+    directionalLight = new THREE.DirectionalLight( 0xffffff, 1 ); directionalLight.position.set(70,45, 60);
+    ambientLight = new THREE.AmbientLight( 0xffffff );
+    outlinedScene.add( directionalLight);
+    outlinedScene.add( ambientLight);
 
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1100 );
     clock = new THREE.Clock(true);
@@ -123,6 +123,9 @@ function init() {
             darkwater: new THREE.Vector3(0.01, 0.4118, 0.7176),
             foam: new THREE.Vector3(1.0, 1.0, 1.0),
             windOpacity: 0.5,
+            cloudOpacity: 0.7,
+            light: 1.0,
+            ambientLight: 1.0,
 
         },
         1: {
@@ -135,6 +138,9 @@ function init() {
             darkwater: new THREE.Vector3(0.047, 0.09, 0.2),
             foam: new THREE.Vector3(0.45, 0.45, 0.45),
             windOpacity: 0.1,
+            cloudOpacity: 0.4,
+            light: 0.3,
+            ambientLight: 0.7
 
         }
     }
@@ -186,7 +192,7 @@ function init() {
 
 
 
-    //ISLAND
+    //ISLANDx
     const island = new THREE.Object3D();
     const outlinedisland = new THREE.Object3D();
     gltfloader.load(
@@ -233,7 +239,7 @@ function init() {
             gltf.scene.position.set(16, -0.8, 12)
 
             const californiaMaterial = new THREE.MeshToonMaterial( {
-                color:0x228B22 ,
+                color:0x00580C,
                 gradientMap: fourTone,
                 side: THREE.FrontSide
             } );
@@ -649,7 +655,7 @@ function init() {
     )
     const sun = new THREE.Mesh( sunGeometry, sunMaterial );
     scene.add(sun)
-    sun.translateY(200);
+    sun.translateY(230);
     sun.translateZ(-600);
     sun.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
 
@@ -664,7 +670,8 @@ function init() {
             depthWrite: false,
             uniforms: {
                 smallcloudTexture: { value: smallcloudTexture },
-                iTime: { value: 0}
+                iTime: { value: 0},
+                cloudOpacity: {value: sceneUniforms[mode].cloudOpacity}
             },
             vertexShader: cloudVert,
             fragmentShader: smallcloudFrag
@@ -745,24 +752,6 @@ function animate() {
 	renderer.clear()
 	deltaTime = clock.getDelta()
 	time = clock.getElapsedTime()
-	
-    //TODO FIX THIS GIANT CHUNK OF UNIFORM SETTING, DOESNT HAVE TO BE DONE IN EVERY CALL TO ANIMATE()
-    sunMaterial.uniforms.sky.value = sceneUniforms[mode].sky
-    sunMaterial.uniforms.sun.value = sceneUniforms[mode].sun
-    
-    horizonMaterial.uniforms.sky.value = sceneUniforms[mode].sky
-    horizonMaterial.uniforms.horizon.value = sceneUniforms[mode].horizon;
-
-    distantWaterMaterial.uniforms.horizon.value = sceneUniforms[mode].horizon;
-    distantWaterMaterial.uniforms.water.value = sceneUniforms[mode].water;
-    
-    waterMaterial.uniforms.water.value = sceneUniforms[mode].water
-    waterMaterial.uniforms.darkwater.value = sceneUniforms[mode].darkwater
-    waterMaterial.uniforms.foam.value = sceneUniforms[mode].foam
-
-    windMaterial.uniforms.windOpacity.value = sceneUniforms[mode].windOpacity
-
-	
     
     waterMaterial.uniforms.iTime.value = time;
 	smallcloudMaterial.uniforms.iTime.value = time;
@@ -940,7 +929,27 @@ const modeButton = document.getElementsByTagName("img")[1]
 modeButton.addEventListener("click", () => {
     light = !light;
     mode = 1 - mode;
-    helpers.updateMode(mode, scene, smallcloudMesh, horizon, sceneUniforms)
+    scene.background = sceneUniforms[mode].background;
+    scene.fog = sceneUniforms[mode].fog;
+    directionalLight.intensity = sceneUniforms[mode].light
+    ambientLight.intensity = sceneUniforms[mode].ambientLight
+
+    sunMaterial.uniforms.sky.value = sceneUniforms[mode].sky
+    sunMaterial.uniforms.sun.value = sceneUniforms[mode].sun
+    
+    horizonMaterial.uniforms.sky.value = sceneUniforms[mode].sky
+    horizonMaterial.uniforms.horizon.value = sceneUniforms[mode].horizon;
+
+    distantWaterMaterial.uniforms.horizon.value = sceneUniforms[mode].horizon;
+    distantWaterMaterial.uniforms.water.value = sceneUniforms[mode].water;
+    
+    waterMaterial.uniforms.water.value = sceneUniforms[mode].water
+    waterMaterial.uniforms.darkwater.value = sceneUniforms[mode].darkwater
+    waterMaterial.uniforms.foam.value = sceneUniforms[mode].foam
+
+    windMaterial.uniforms.windOpacity.value = sceneUniforms[mode].windOpacity
+    smallcloudMaterial.uniforms.cloudOpacity.value = sceneUniforms[mode].cloudOpacity
+    
     if (light){
         text.style.color = "rgb(35, 35, 35)"
         modeButton.src = "/images/darkicon.png"
@@ -962,5 +971,3 @@ modeButton.addEventListener("click", () => {
         }
     }
 });
-
-
