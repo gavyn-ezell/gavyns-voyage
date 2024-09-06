@@ -49,7 +49,7 @@ export const calculateBoatPosition = (x, time) =>
     let result = new THREE.Vector3();
     result.x = x
     result.z = sigmoidPath(x)
-    result.y = waveFunction(x,result.z, time)
+    result.y = waveFunction(x,result.z, time)-0.075
     return result
 }
 
@@ -92,9 +92,11 @@ export const calculatePlanePosition = (r, center, time) =>
         return result
     }
 
-export const changeText = (voyageText, x) => {
+export const changeText = (voyageText, x, projectButton) => {
     voyageText.style.fontSize = "1.6vmax"
     voyageText.style.top = "15vh"
+    projectButton.style.zIndex = "0";
+    let opac;
     switch (true) {
         //TITLE
         case x >= -20 && x < -10.48:
@@ -123,11 +125,17 @@ export const changeText = (voyageText, x) => {
             break;
         //OILRIG
         case x >= 16.475 && x < 22.51:
-            voyageText.style.opacity = (x-16.475) / (6.035)
+            opac = (x-16.475) / (6.035)
+            voyageText.style.opacity = opac
+            projectButton.style.opacity = opac
+            projectButton.style.zIndex = "10"
             voyageText.innerText = text[3]
             break;
         case x >= 22.51 && x < 30.8:
-            voyageText.style.opacity = (30.8-x) / (8.29)
+            opac = (30.8-x) / (8.29);
+            voyageText.style.opacity = opac
+            projectButton.style.opacity = opac
+            projectButton.style.zIndex = "10"
             voyageText.innerText = text[3]
             break;
         default:

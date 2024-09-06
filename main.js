@@ -69,7 +69,7 @@ function init() {
         // console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
     };
     loadManager.onLoad = function ( ) {
-        console.log( 'Loading complete!');
+        // console.log( 'Loading complete!');
 		document.getElementById("progress-bar").remove();
 
 
@@ -703,7 +703,7 @@ function init() {
     context.fillRect( 0, 0, 64, 8 );
 
     const windTexture = new THREE.CanvasTexture( canvas );
-    const windGeometry = new THREE.PlaneGeometry( 50, 0.015, 20, 1 );
+    const windGeometry = new THREE.PlaneGeometry( 30, 0.015, 20, 1 );
     windMaterial = new THREE.ShaderMaterial(
         {
             transparent: true,
@@ -744,9 +744,10 @@ let boatSpeed = 3;
 let rotationSpeed = 1.0;
 let sharkCenter = new THREE.Vector3(25, -0.2, 25)
 let planeCenter = new THREE.Vector3(16, 4, 8)
-let windSpeed = 30.0;
+let windSpeed = 35.0;
 let windDir = new THREE.Vector3(1,0,0)
 const text = document.getElementById("voyage-text");
+const projectButton = document.getElementById("project-browser-button");
 
 function animate() {
 	renderer.clear()
@@ -782,7 +783,7 @@ function animate() {
 	}
 
 	//handling UI
-	helpers.changeText(text, boatX)
+	helpers.changeText(text, boatX, projectButton)
 
 
 	//handling boat position and orientation
@@ -896,7 +897,15 @@ window.addEventListener( "keydown", (event) => {
 	else if (event.key == "a")
 	{
 		inBackward = true;
-	}}, false,
+	}
+    else if (event.key == "ArrowRight")
+    {
+        inForward = true;
+    }
+    else if (event.key == "ArrowLeft")
+    {
+        inBackward = true;
+    }}, false,
   );
 
 window.addEventListener( "keyup", (event) => {
@@ -907,7 +916,15 @@ window.addEventListener( "keyup", (event) => {
 	else if (event.key == "a")
 	{
 		inBackward = false;
-	}}, false,
+	}
+    else if (event.key == "ArrowRight")
+    {
+        inForward = false;
+    }
+    else if (event.key == "ArrowLeft")
+    {
+        inBackward = false;
+    }}, false,
   );
 
 let mute = true;
@@ -971,3 +988,4 @@ modeButton.addEventListener("click", () => {
         }
     }
 });
+

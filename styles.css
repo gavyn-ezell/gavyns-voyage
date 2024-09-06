@@ -34,25 +34,57 @@
     width: 90vw;
     transform: translate(-50%,-35%);
     z-index: 10;
+    /* border: solid; */
+}
+
+#project-browser-button {
+    top: 25%;
+    left: 50%;
+    width: 225px;
+    height: 41px;
+    transform: translate(-50%, -50%);
+    border: 0;
+    border-radius: 999px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    word-break: break-word;
+    
+    text-align: center;
+    background-color: #2a71d5;
+    color:white;
+    line-height: 40px;  
+    font-family: "Montserrat", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    z-index: 10;
+}
+#project-browser-button:hover {
+    background-color: white;
+    color: rgb(35, 35, 35);
 }
 
 #icon-container {
     display: flex;
-    top: 90vh;
-    left: 85vw;
-    width: 14vw;
-    height: 9vh;
+    justify-content: space-evenly;
+    bottom: 2px;
+    right: 10px;
+    width: 120px;
+    height: 70px;
     z-index: 10;
     /* border: solid; */
+    
 }
+button:focus {outline:0;}
 .icon {
-    aspect-ratio : 1 / 1;
     margin: auto;
+    width: 45px; 
+    height: 45px;
     border-radius: 50%;
-    border: 0;
-    width: 6vmin;
     background-color: white;
     position: relative;
+    border: 0;
+
 }
 .icon:hover
 {
@@ -73,8 +105,8 @@
   position:absolute;
   top: 50%;
   left: 50%;
-  width: 500px;
-  height: 100px;
+  width: 325px;
+  height: 80px;
   transform: translate(-50%, -50%);
   background-color: #2a71d5;
   color:white;
@@ -96,9 +128,9 @@
     height: 100%;
     width: 100%;
     text-align: center;
-    line-height: 100px;  
+    line-height: 80px;  
     font-family: "Montserrat", sans-serif;
-    font-size: 60px;
+    font-size: 42px;
     font-weight: 600;
     z-index: 12;
 
@@ -117,9 +149,9 @@
 {
     text-align: center;
     background-color:  #016FBE;
-    line-height: 100px;  
+    line-height: 70px;  
     font-family: "Montserrat", sans-serif;
-    font-size: 60px;
+    font-size: 42px;
     font-weight: 600;
     z-index: 10;
 }
@@ -130,3 +162,45 @@
     background-color: white;
     color: rgb(35, 35, 35);
 }
+
+#help-popup {
+    position:absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    z-index: 10;
+    width: 50vw;
+    height: 60vh;
+    border-radius: 2%;
+    border:solid 7px;
+
+
+}
+
+#help-popup button{
+    position:absolute;
+    aspect-ratio: 1 / 1;
+    width: 7%;
+    left:100%;
+    transform: translate(-100%, 0%);
+    background-color: white;
+    border-radius: 10%;
+    border: 0;
+
+}
+
+#help-popup button:hover {
+    cursor: pointer;
+}
+#help-popup button img
+{
+    position:absolute;
+    width: 100%;
+    height: 100%;
+    left: 50%;
+    top:50%;
+    transform: translate(-50%,-50%);
+    margin: auto;
+}
+
