@@ -6,7 +6,7 @@ const text = [
     "I’m Gavyn.\nI’m a software engineer who was born and raised on the beautiful island of Oahu, Hawaii.\nI love the beach, playing the piano, and video games.",
     "I traveled to California to complete a bachelor’s degree in Computer Science.\nI attended the University of California – San Diego,\nand participated in clubs like ACM, Triton Gaming, and VGDC.",
     "I gained experience writing backend software through projects and internships.\nI also have a second interest in computer graphics and games!",
-    "Thanks for cruising! Feel free to connect or learn about me!"
+    `Thanks for cruising!<br>Want to connect or learn more about me?`
 ]
 export const generateCloudTransformation = (matrix) => {
 
@@ -92,10 +92,12 @@ export const calculatePlanePosition = (r, center, time) =>
         return result
     }
 
-export const changeText = (voyageText, x, projectButton) => {
+export const changeText = (voyageText, x, projectButton, linkedinButton, resumeButton) => {
     voyageText.style.fontSize = "1.6vmax"
     voyageText.style.top = "15vh"
     projectButton.style.zIndex = "0";
+    linkedinButton.style.zIndex = "0";
+    resumeButton.style.zIndex = "0";
     let opac;
     switch (true) {
         //TITLE
@@ -139,8 +141,13 @@ export const changeText = (voyageText, x, projectButton) => {
             voyageText.innerText = text[3]
             break;
         default:
-            voyageText.style.opacity = (x-30.8) / (8.7)
-            voyageText.innerText = text[4]
+            opac = (x-30.8) / (8.7)
+            voyageText.style.opacity = opac
+            linkedinButton.style.opacity = opac
+            linkedinButton.style.zIndex = "10"
+            resumeButton.style.opacity = opac
+            resumeButton.style.zIndex = "10"
+            voyageText.innerHTML= text[4]
             break;
         
         }

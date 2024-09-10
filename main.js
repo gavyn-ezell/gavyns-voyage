@@ -738,9 +738,9 @@ let deltaTime = 0.0;
 let last = 0.0
 let inForward = false;
 let inBackward = false;
-let boatX = -20;
+let boatX = 39.5;
 let boatOrientation = 0.75;
-let boatSpeed = 3;
+let boatSpeed = 4;
 let rotationSpeed = 1.0;
 let sharkCenter = new THREE.Vector3(25, -0.2, 25)
 let planeCenter = new THREE.Vector3(16, 4, 8)
@@ -748,6 +748,8 @@ let windSpeed = 35.0;
 let windDir = new THREE.Vector3(1,0,0)
 const text = document.getElementById("voyage-text");
 const projectButton = document.getElementById("project-browser-button");
+const linkedinButton =document.getElementById("linkedin-button");
+const resumeButton =document.getElementById("resume-button");
 
 function animate() {
 	renderer.clear()
@@ -783,7 +785,7 @@ function animate() {
 	}
 
 	//handling UI
-	helpers.changeText(text, boatX, projectButton)
+	helpers.changeText(text, boatX, projectButton, linkedinButton, resumeButton)
 
 
 	//handling boat position and orientation
@@ -928,7 +930,6 @@ window.addEventListener( "keyup", (event) => {
   );
 
 let mute = true;
-console.log(document.getElementsByTagName("img"))
 const musicButton = document.getElementsByTagName("img")[6]
 musicButton.addEventListener("click", () => {
     mute = !mute;

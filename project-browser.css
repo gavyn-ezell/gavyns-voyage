@@ -55,7 +55,7 @@ p {
     width: 55%;
 }
 
-a {
+#project-browser a {
     color: rgb(0, 119, 255);
     text-decoration: none;
 }

@@ -139,7 +139,7 @@ button:focus {outline:0;}
     color: rgb(35, 35, 35);
 }
 
-#project-browser-button {
+#project-browser-button{
     top: 25%;
     left: 50%;
     width: 225px;
@@ -165,3 +165,59 @@ button:focus {outline:0;}
     background-color: white;
     color: rgb(35, 35, 35);
 }
+
+#linkedin-button{
+    top: 25%;
+    left: 50%;
+    width: 225px;
+    height: 41px;
+    transform: translate(-105%, -50%);
+    border: 0;
+    border-radius: 999px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    word-break: break-word;
+    
+    text-align: center;
+    background-color: #2a71d5;
+    color:white;
+    line-height: 40px;  
+    font-family: "Montserrat", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    z-index: 10;
+}
+
+#resume-button{
+    top: 25%;
+    left: 50%;
+    width: 225px;
+    height: 41px;
+    transform: translate(-0%, -50%);
+    border: 0;
+    border-radius: 999px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    word-break: break-word;
+    
+    text-align: center;
+    background-color: #2a71d5;
+    color:white;
+    line-height: 40px;  
+    font-family: "Montserrat", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    z-index: 10;
+}
+#linkedin-button:hover, #resume-button:hover {
+    background-color: white;
+    color: black;
+}
+
+#linkedin-button a, #resume-button a {
+    color: inherit;
+    text-decoration: none;
+}
+
