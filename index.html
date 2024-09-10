@@ -2,6 +2,7 @@
 	<head>
 		<link rel="shortcut icon" href="#" />
 		<link rel="stylesheet" href="styles.css">
+		<link rel="stylesheet" href="project-browser.css">
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -26,6 +27,55 @@
 
 			</div>
 			<div class="in-wrapper" id="project-browser-button">BROWSE PROJECTS</div>
+			<article class="in-wrapper" id="project-browser">
+				<div id="exit-button">
+					<button>
+						<img id="what" src="/images/xbutton.png" alt="exitbutton">
+					</button>
+				</div>
+				
+				<section>
+					<h2>smash player tracker</h2>
+					<iframe style="border-top:solid #3D7CF7 5px;border-bottom:solid #F72665" id="embedvid" src="https://www.youtube.com/embed/C5CvZujBBcg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
+						
+					</iframe>
+					<p>
+						Built an <b style="color:grey">Express</b> app where you can create a personalized dashboard for updates on your favorite Smash Ultimate Pro Players. Communicates with a <b style="color:#FFA81F">MySQL</b> database for user management, and incorporates Start.gg's <b style="color:#DE33A6">GraphQL</b> API for player stats and info. 
+						Also incorporates notification system via <b style="color:#F1354B">Twilio</b>. All code can be found <a target="_blank" rel="noopener noreferrer" href="https://github.com/gavyn-ezell/startgg-project">here</a>.
+					</p>
+
+				</section>
+				
+				<section>
+					<h2>eventify</h2>
+					<iframe id="embedvid" src="https://www.youtube.com/embed/RAc_uTXVx88" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+						
+					</iframe>
+					<p id="eventify-description">
+						Participated in ACM @ UCSD's Spring 2023 Project Group.
+						Worked in a team of 6 to complete a simple 
+						<b style="color:green">M</b><b style="color:grey">E</b><b style="color:#61DBFB">R</b><b style="color:#F72665">N</b>
+						app for promoting and browsing events on campus. Did API development and database management.
+						Project found <a target="_blank" rel="noopener noreferrer" href="https://github.com/acmucsd-projects/sp23-hack-team-3">here</a>.
+					</p>
+				</section>
+				<section>
+					<h2>ray tracer from scratch</h2>
+					<div id="raytracer-images">
+						<img class="firstrow" src="/images/render1.png" alt="render1">
+						<img class="firstrow" src="/images/render2.png" alt="render2">
+						<img class="firstrow" src="/images/render3.png" alt="render3">
+						<img src="/images/render4.png" alt="render4">
+						<img src="/images/render5.png" alt="render5">
+					</div>
+					<p>
+						Built an executable ray tracer completely from scratch in <b style="color:maroon">C++</b>. 
+						Additionally built a script to help translate simple .obj files into a readable input/scene file format.
+						Additionally incorporates a <b style="color: rgb(34, 128, 0)">Bounding Volume Hierarchy</b> to accelerate rendering times. 
+						Project found <a target="_blank" rel="noopener noreferrer" href="https://github.com/gavyn-ezell/raytracer">here</a>.
+					</p>
+				</section>
+			</article>
 			<div class="in-wrapper" id="icon-container">
 				<button class="icon" id="music-button"><img src="/images/muteicon.png" alt="music"></button>
 				<button class="icon"><img src="/images/darkicon.png" alt="theme"></button>  

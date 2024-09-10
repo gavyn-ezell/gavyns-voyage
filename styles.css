@@ -1,3 +1,4 @@
+
 #wrapper {
     width: 100vw;
     height: 100vh;
@@ -14,7 +15,7 @@
     opacity: 1;
     width: 100vw;
     height: 100vh;
-    z-index: 11;
+    z-index: 20;
 }
 
 #loadscreen.fadeout{
@@ -34,35 +35,9 @@
     width: 90vw;
     transform: translate(-50%,-35%);
     z-index: 10;
-    /* border: solid; */
 }
 
-#project-browser-button {
-    top: 25%;
-    left: 50%;
-    width: 225px;
-    height: 41px;
-    transform: translate(-50%, -50%);
-    border: 0;
-    border-radius: 999px;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-    word-break: break-word;
-    
-    text-align: center;
-    background-color: #2a71d5;
-    color:white;
-    line-height: 40px;  
-    font-family: "Montserrat", sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    z-index: 10;
-}
-#project-browser-button:hover {
-    background-color: white;
-    color: rgb(35, 35, 35);
-}
+
 
 #icon-container {
     display: flex;
@@ -73,6 +48,7 @@
     height: 70px;
     z-index: 10;
     /* border: solid; */
+    
     
 }
 button:focus {outline:0;}
@@ -163,44 +139,29 @@ button:focus {outline:0;}
     color: rgb(35, 35, 35);
 }
 
-#help-popup {
-    position:absolute;
-    top: 50%;
+#project-browser-button {
+    top: 25%;
     left: 50%;
+    width: 225px;
+    height: 41px;
     transform: translate(-50%, -50%);
-    background-color: white;
-    z-index: 10;
-    width: 50vw;
-    height: 60vh;
-    border-radius: 2%;
-    border:solid 7px;
-
-
-}
-
-#help-popup button{
-    position:absolute;
-    aspect-ratio: 1 / 1;
-    width: 7%;
-    left:100%;
-    transform: translate(-100%, 0%);
-    background-color: white;
-    border-radius: 10%;
     border: 0;
-
+    border-radius: 999px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    word-break: break-word;
+    
+    text-align: center;
+    background-color: #2a71d5;
+    color:white;
+    line-height: 40px;  
+    font-family: "Montserrat", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    z-index: 10;
 }
-
-#help-popup button:hover {
-    cursor: pointer;
+#project-browser-button:hover {
+    background-color: white;
+    color: rgb(35, 35, 35);
 }
-#help-popup button img
-{
-    position:absolute;
-    width: 100%;
-    height: 100%;
-    left: 50%;
-    top:50%;
-    transform: translate(-50%,-50%);
-    margin: auto;
-}
-

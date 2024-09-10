@@ -928,7 +928,8 @@ window.addEventListener( "keyup", (event) => {
   );
 
 let mute = true;
-const musicButton = document.getElementsByTagName("img")[0]
+console.log(document.getElementsByTagName("img"))
+const musicButton = document.getElementsByTagName("img")[6]
 musicButton.addEventListener("click", () => {
     mute = !mute;
     if (mute){
@@ -942,7 +943,7 @@ musicButton.addEventListener("click", () => {
 });
 
 let light = true;
-const modeButton = document.getElementsByTagName("img")[1]
+const modeButton = document.getElementsByTagName("img")[7]
 modeButton.addEventListener("click", () => {
     light = !light;
     mode = 1 - mode;
@@ -986,6 +987,24 @@ modeButton.addEventListener("click", () => {
         {
             sound.play();
         }
+    }
+});
+
+const projectBrowser = document.getElementById("project-browser")
+const exitButton = document.getElementsByTagName("img")[0]
+
+exitButton.addEventListener("click", () => {
+    projectBrowser.style.zIndex = "0"
+    if (!mute){
+        sound.play();
+    }
+});
+
+const openButton = document.getElementById("project-browser-button")
+openButton.addEventListener("click", () => {
+    projectBrowser.style.zIndex = "30"
+    if (!mute){
+        sound.pause()
     }
 });
 
