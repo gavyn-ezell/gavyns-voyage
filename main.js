@@ -99,13 +99,13 @@ function init() {
     sound = song0;
 
     // load a sound and set it as the Audio object's buffer
-    audioLoader.load( '/audio/bubblaine.mp3', function( buffer ) {
+    audioLoader.load( '/audio/bubblaine.ogg', function( buffer ) {
         song0.setBuffer( buffer );
         song0.setLoop( true );
         song0.setVolume( 0.2 );
     });
 
-    audioLoader.load( '/audio/bubblaine-underwater.mp3', function( buffer ) {
+    audioLoader.load( '/audio/bubblaine-underwater.ogg', function( buffer ) {
         song1.setBuffer( buffer );
         song1.setLoop( true );
         song1.setVolume( 0.2 );
