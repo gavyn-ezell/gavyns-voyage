@@ -8,12 +8,27 @@
 		<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 		<meta charset="utf-8">
 		<title>Gavyn's Voyage</title>
-		<style>
-			body { margin: 0; }
-		</style>
 	</head>
 	<body>
 		<div id="wrapper">
+			<div class="in-wrapper" id="loadscreen">
+				<div class="bar-button" id="progress-bar">
+					<div id="progress-bar-text">LOADING...</div>
+					<div id="progress-fill"></div>
+				</div>
+				<button class="bar-button" id="start-button">
+					SET SAIL
+				</button>
+			</div>
+			<div class="in-wrapper" id ="voyage-text"></div>
+
+			<div class="in-wrapper" id="icon-container">
+				<button class="icon" id="music-button"><img src="/images/muteicon.png" alt="music"></button>
+				<button class="icon" id="mode-button"><img src="/images/darkicon.png" alt="theme"></button>  
+			</div>
+		</div>
+		<script type="module" src="/js/main.js"></script>
+		<!-- <div id="wrapper">
 			<div class="in-wrapper" id="loadscreen">
 				<div class="bar-button" id="progress-bar">
 					<div id="progress-bar-text">LOADING...</div>
@@ -83,7 +98,7 @@
 				<button class="icon"><img src="/images/darkicon.png" alt="theme"></button>  
 			</div>
 		  </div>
-		<script type="module" src="/main.js"></script>
+		<script type="module" src="/main.js"></script> -->
 
 	</body>
 </html>

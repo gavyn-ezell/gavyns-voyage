@@ -1,12 +1,22 @@
-
+body{
+    margin: 0;
+}
 #wrapper {
+    overflow: hidden;
     width: 100vw;
+    width: 100svw;
     height: 100vh;
+    height: 100svh;
     position: relative;
 }
 
 .in-wrapper{
     position: absolute;
+}
+canvas {
+    height: 100%;
+    width: 100%;
+    cursor: grab;
 }
 
 #loadscreen{
@@ -14,7 +24,7 @@
     transition: opacity 0.3s ease-out;
     opacity: 1;
     width: 100vw;
-    height: 100vh;
+    height: 100svh;
     z-index: 20;
 }
 

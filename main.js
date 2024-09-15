@@ -36,7 +36,6 @@ smallcloudMesh, horizon;
 init();
 renderer.setAnimationLoop( animate );
 
-
 function init() {
     
     renderer = new THREE.WebGLRenderer( { antialias: true, precision: "lowp"});
@@ -59,11 +58,12 @@ function init() {
     clock = new THREE.Clock(true);
 
     const loadScreen = document.getElementById("loadscreen");
-	const fillElement = document.getElementById("progress-fill");
 	const startButton = document.getElementById("start-button");
 	startButton.addEventListener("click", () => {loadScreen.classList.add("fadeout"); inLoad = false;})
 	loadScreen.addEventListener("transitionend", (e) => {e.target.remove()})
     
+
+    const fillElement = document.getElementById("progress-fill");
 	const loadManager = new THREE.LoadingManager();
     loadManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
         // console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
