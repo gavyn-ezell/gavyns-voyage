@@ -10,16 +10,33 @@ window.addEventListener( 'resize', sceneManager.onWindowResize.bind(sceneManager
 
 const loadScreen = document.getElementById("loadscreen");
 const startButton = document.getElementById("start-button");
-startButton.addEventListener("click", () => {loadScreen.classList.add("fadeout")})
-loadScreen.addEventListener("transitionend", (e) => {e.target.remove()})
+let hintRemoved = false;
+var div = document.createElement("div");
+div.classList.add("in-wrapper")
+div.id = "movehint"
+div.innerHTML = "click and drag or use [A] and [D] to move";
+document.getElementById("wrapper").appendChild(div);
 
+startButton.addEventListener("click", () => {
+    loadScreen.classList.add("fadeout");
+    setTimeout(() => {
+        if (!hintRemoved) {
+            document.getElementById("movehint").style.zIndex = "10";
+            document.getElementById("movehint").classList.add("fadein")
 
+        }
+      }, 3000);
+})
+
+loadScreen.addEventListener("transitionend", (e) => {
+    e.target.remove()})
+
+const projectButton = document.getElementById("project-browser-button");
 
 const imageSources = {
     modeIcon: ["/images/darkicon.png", "/images/lighticon.png"],
     musicIcon: ["/images/volumeicon.png", "/images/muteicon.png"]
 }
-
 
 const textElement = document.getElementById("voyage-text");
 //SCENE BUTTONS
@@ -27,11 +44,18 @@ const modeButton = document.getElementById("mode-button");
 modeButton.addEventListener('click', () => {
     sceneManager.toggleMode();
     modeButton.children[0].src = imageSources.modeIcon[sceneManager.mode]
+    let hint = document.getElementById("movehint")
     if (sceneManager.mode == 1) {
         textElement.style.color = "rgb(221,221,221)";
+        if (hint) {
+            hint.style.color = "rgb(221,221,221)";
+        }
     }
     else {
         textElement.style.color = "rgb(35,35,35)"
+        if (hint) {
+            hint.style.color = "rgb(35,35,35)";
+        }
     }
     
 })
@@ -52,15 +76,16 @@ const text = [
 ]
 
 
+  
 let opac;
 let x;
 setInterval(() => {
     x = sceneManager.boatX;
     textElement.style.fontSize = "1.6vmax"
     textElement.style.top = "15vh"
-    // projectButton.style.zIndex = "0";
-    // linkedinButton.style.zIndex = "0";
-    // resumeButton.style.zIndex = "0";
+    projectButton.style.zIndex = "0";
+    linkedinButton.style.zIndex = "0";
+    resumeButton.style.zIndex = "0";
     switch (true) {
         //TITLE
         case x >= -20 && x < -10.48:
@@ -91,24 +116,24 @@ setInterval(() => {
         case x >= 16.475 && x < 22.51:
             opac = (x-16.475) / (6.035)
             textElement.style.opacity = opac
-            // projectButton.style.opacity = opac
-            // projectButton.style.zIndex = "10"
+            projectButton.style.opacity = opac
+            projectButton.style.zIndex = "10"
             textElement.innerText = text[3]
             break;
         case x >= 22.51 && x < 30.8:
             opac = (30.8-x) / (8.29);
             textElement.style.opacity = opac
-            // projectButton.style.opacity = opac
-            // projectButton.style.zIndex = "10"
+            projectButton.style.opacity = opac
+            projectButton.style.zIndex = "10"
             textElement.innerText = text[3]
             break;
         default:
             opac = (x-30.8) / (8.7)
             textElement.style.opacity = opac
-            // linkedinButton.style.opacity = opac
-            // linkedinButton.style.zIndex = "10"
-            // resumeButton.style.opacity = opac
-            // resumeButton.style.zIndex = "10"
+            linkedinButton.style.opacity = opac
+            linkedinButton.style.zIndex = "10"
+            resumeButton.style.opacity = opac
+            resumeButton.style.zIndex = "10"
             textElement.innerHTML= text[4]
             break;
         
@@ -116,7 +141,21 @@ setInterval(() => {
 }, 40); // Wait 1000ms before running again
 
 
+const projectBrowser = document.getElementById("project-browser")
+const exitButton = document.getElementsByTagName("img")[0]
 
+exitButton.addEventListener("click", () => {
+    projectBrowser.style.zIndex = "0"
+    sceneManager.freezeSound(false)
+});
+
+projectButton.addEventListener("click", () => {
+    projectBrowser.style.zIndex = "30"
+    sceneManager.freezeSound(true)
+});
+
+const linkedinButton = document.getElementById("linkedin-button");
+const resumeButton = document.getElementById("resume-button");
 
 
 //MOVEMENT
@@ -125,6 +164,10 @@ var timestamp = null;
 var lastMouseX = null;
 var velocity;
 renderElement.addEventListener("pointerdown", (e)=> {
+    if (!hintRemoved) {
+        hintRemoved = true;
+        document.getElementById("movehint").remove()
+    }
     inDragState = true;
     renderElement.style.cursor = "grabbing";
 })
@@ -166,10 +209,18 @@ renderElement.addEventListener("pointermove", (e) => {
 window.addEventListener( "keydown", (event) => {
 	if (event.key == "d" && !inDragState)
 	{
+        if (!hintRemoved) {
+            hintRemoved = true;
+            document.getElementById("movehint").remove()
+        }
 		sceneManager.forwardKeyPressed = true;
 	}
 	else if (event.key == "a" && !inDragState)
 	{
+        if (!hintRemoved) {
+            hintRemoved = true;
+            document.getElementById("movehint").remove()
+        }
 		sceneManager.backKeyPressed = true;
 	}}, false,
   );

@@ -152,6 +152,15 @@ export class SceneManager {
         this.sceneSubjects.sounds.toggleSound(this.mute);
 
     }
+
+    freezeSound(enterbrowser) {
+        if (!this.mute && enterbrowser) {
+            this.sceneSubjects.sounds.currSong.pause()
+        }
+        else if (!this.mute && !enterbrowser) {
+            this.sceneSubjects.sounds.currSong.play()
+        }
+    }
     
     toggleMode(){
         this.mode = 1 - this.mode;
