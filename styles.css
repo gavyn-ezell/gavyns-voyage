@@ -175,7 +175,7 @@ button:focus {outline:0;}
     top: 25%;
     left: 50%;
     width: 225px;
-    height: 41px;
+    height: 45px;
     transform: translate(-50%, -50%);
     border: 0;
     border-radius: 999px;
@@ -187,9 +187,9 @@ button:focus {outline:0;}
     text-align: center;
     background-color: #2a71d5;
     color:white;
-    line-height: 40px;  
+    line-height: 45px;  
     font-family: "Montserrat", sans-serif;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 600;
     z-index: 10;
 }
@@ -202,7 +202,7 @@ button:focus {outline:0;}
     top: 25%;
     left: 50%;
     width: 225px;
-    height: 41px;
+    height: 45px;
     transform: translate(-105%, -50%);
     border: 0;
     border-radius: 999px;
@@ -214,7 +214,7 @@ button:focus {outline:0;}
     text-align: center;
     background-color: #2a71d5;
     color:white;
-    line-height: 40px;  
+    line-height: 45px;  
     font-family: "Montserrat", sans-serif;
     font-size: 16px;
     font-weight: 600;
@@ -225,7 +225,7 @@ button:focus {outline:0;}
     top: 25%;
     left: 50%;
     width: 225px;
-    height: 41px;
+    height: 45px;
     transform: translate(-0%, -50%);
     border: 0;
     border-radius: 999px;
@@ -237,7 +237,7 @@ button:focus {outline:0;}
     text-align: center;
     background-color: #2a71d5;
     color:white;
-    line-height: 40px;  
+    line-height: 45px;  
     font-family: "Montserrat", sans-serif;
     font-size: 16px;
     font-weight: 600;

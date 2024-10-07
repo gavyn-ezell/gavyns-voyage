@@ -71,8 +71,8 @@ const text = [
     "GAVYN'S VOYAGE", 
     "I’m Gavyn.\nI’m a software engineer who was born and raised on the beautiful island of Oahu, Hawaii.\nI love the beach, playing the piano, and video games.",
     "I traveled to California to complete a bachelor’s degree in Computer Science.\nI attended the University of California – San Diego,\nand participated in clubs like ACM, Triton Gaming, and VGDC.",
-    "I gained experience writing backend software through projects and internships.\nI also have a second interest in computer graphics and games!",
-    `Thanks for cruising!<br>Want to connect or learn more about me?`
+    "I gained experience writing backend software through projects and internships.\nI also have a second interest in computer graphics and games! Check out my separate portfolio for more details about me!",
+    `Thanks for cruising!<br>Feel free to connect!`
 ]
 
 
@@ -141,18 +141,18 @@ setInterval(() => {
 }, 40); // Wait 1000ms before running again
 
 
-const projectBrowser = document.getElementById("project-browser")
-const exitButton = document.getElementsByTagName("img")[0]
+// const projectBrowser = document.getElementById("project-browser")
+// const exitButton = document.getElementsByTagName("img")[0]
 
-exitButton.addEventListener("click", () => {
-    projectBrowser.style.zIndex = "0"
-    sceneManager.freezeSound(false)
-});
+// exitButton.addEventListener("click", () => {
+//     projectBrowser.style.zIndex = "0"
+//     sceneManager.freezeSound(false)
+// });
 
-projectButton.addEventListener("click", () => {
-    projectBrowser.style.zIndex = "30"
-    sceneManager.freezeSound(true)
-});
+// projectButton.addEventListener("click", () => {
+//     projectBrowser.style.zIndex = "30"
+//     sceneManager.freezeSound(true)
+// });
 
 const linkedinButton = document.getElementById("linkedin-button");
 const resumeButton = document.getElementById("resume-button");
